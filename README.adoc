@@ -65,7 +65,14 @@ Start a container from the https://hub.docker.com/r/grafana/otel-lgtm[grafana/ot
 
 [role="command"]
 ----
-docker run -p 3000:3000 -p 4317:4317 -p 4318:4318 --rm -ti grafana/otel-lgtm
+docker run -d --name otel-lgtm -p 3000:3000 -p 4317:4317 -p 4318:4318 --rm -ti grafana/otel-lgtm
+----
+
+You can monitor the container startup by viewing its logs:
+
+[role="command"]
+----
+docker logs otel-lgtm
 ----
 
 It may take a minute for the container to start. After you see the following message, your observability stack is ready:
@@ -75,7 +82,7 @@ It may take a minute for the container to start. After you see the following mes
 The OpenTelemetry collector and the Grafana LGTM stack are up and running.
 ----
 
-Once the container is running, you can access the Grafana dashboard at the http://localhost:3000 URL.
+When the container is running, you can access the Grafana dashboard at the http://localhost:3000 URL.
 
 // =================================================================================================
 // Getting started
@@ -152,7 +159,7 @@ The defaultServer server is ready to run a smarter planet.
 
 When both services are running, navigate your browser to the http://localhost:9081/inventory/systems/localhost URL.
 
-When you visit this endpoint, it sends one HTTP GET request to the `inventory` service, which then makes two outbound GET requests to the `system` service: one to the `/system/properties` endpoint and another to the `/health` endpoint.
+When you visit this endpoint, it sends an HTTP GET request to the `inventory` service. The `inventory` service then makes two outbound GET requests to the `system` service. One request goes to the `/system/properties` endpoint, and the other goes to the `/health` endpoint.
 
 In addition, the `inventory` service automatically pings the `system` service every 30 seconds to refresh the health status of all systems in the inventory.
 
@@ -282,7 +289,7 @@ system/server.xml
 include::finish/system/src/main/liberty/config/server.xml[]
 ----
 
-Similarly, add the [hotspot=mpTelemetry file=1]`mpTelemetry` feature to enable telemetry support in the `system` service.
+Similarly, the added [hotspot=mpTelemetry file=1]`mpTelemetry` feature enables telemetry support for the `system` service.
 
 By default, MicroProfile Telemetry is disabled to reduce performance overhead. To enable it, set the `otel.sdk.disabled` property to `false` in a valid configuration source.
 
@@ -298,7 +305,7 @@ inventory/bootstrap.properties
 include::finish/inventory/src/main/liberty/config/bootstrap.properties[]
 ----
 
-Set the [hotspot=disabled file=2]`otel.sdk.disabled=false` property in the https://openliberty.io/docs/latest/reference/bootstrap-properties.html[bootstrap properties^] file to enable telemetry collection. Because this file applies configuration at the runtime level, it allows both runtime and application telemetry to be collected. If you instead configure this property at the application level, runtime telemetry will not be collected. See the https://openliberty.io/docs/latest/microprofile-telemetry.html#global[MicroProfile Telemetry configuration documentation^] for details.
+Setting the [hotspot=disabled file=2]`otel.sdk.disabled=false` property in the https://openliberty.io/docs/latest/reference/bootstrap-properties.html[bootstrap properties^] file enables telemetry collection. Because this file applies configuration at the runtime level, it allows both runtime and application telemetry to be collected. If you instead configure this property at the application level, runtime telemetry will not be collected. See the https://openliberty.io/docs/latest/microprofile-telemetry.html#global[MicroProfile Telemetry configuration documentation^] for details.
 
 The [hotspot=service file=2]`otel.service.name` property sets the service name to `inventory`, helping identify the source of the telemetry data in monitoring tools like Grafana.
 
@@ -316,7 +323,7 @@ system/bootstrap.properties
 include::finish/system/src/main/liberty/config/bootstrap.properties[]
 ----
 
-Similarly, configure the [hotspot=otel file=3]`otel.*` properties in the [hotspot file=3]`bootstrap.properties` file for the `system` service.
+The [hotspot=otel file=3]`otel.*` properties are configured in the [hotspot file=3]`bootstrap.properties` file for the `system` service to enable telemetry collection and define service-specific settings.
 
 For more information about these and other Telemetry properties, see the https://openliberty.io/docs/latest/reference/microprofile-config-properties.html#telemetry[MicroProfile Config properties for MicroProfile Telemetry^] documentation.
 
@@ -390,7 +397,7 @@ After you see the following message, your Liberty instance is ready in dev mode:
 
 Dev mode holds your command-line session to listen for file changes. Open another command-line session to continue, or open the project in your editor.
 
-When both services are running, visit the http://localhost:9081/inventory/systems/localhost URL to trigger the collection of automatic telemetry instrumentation. By default, OpenTelemetry generates trace spans for incoming HTTP requests to JAX-RS and REST endpoints, collects runtime and application metrics such as HTTP request durations and JVM performance, and captures message logs written by the application or Liberty runtime at the `INFO` level or higher.
+When both services are running, visit the http://localhost:9081/inventory/systems/localhost URL to trigger automatic telemetry collection for the request. By default, OpenTelemetry generates trace spans for incoming HTTP requests to JAX-RS and REST endpoints, collects runtime and application metrics such as HTTP request durations and JVM performance, and captures message logs written by the application or Liberty runtime at the `INFO` level or higher.
 
 To explore the automatic telemetry data, open the Grafana dashboard at the http://localhost:3000 URL.
 
@@ -419,7 +426,7 @@ image::red_metrics.png[RED Metrics,align="center"]
 // =================================================================================================
 == Enhancing application logs
 
-When MicroProfile Telemetry is enabled, OpenTelemetry automatically collects logs from the Liberty message log stream. This includes logs written by the `java.util.logging` API at the `INFO` level or higher, as well as messages from the `System.out` standard output and `System.err` standard error streams.
+When MicroProfile Telemetry is enabled, OpenTelemetry automatically collects logs from the Liberty message log stream. This includes logs written using the `java.util.logging` API at the `INFO` level or higher, as well as messages from the `System.out` standard output and `System.err` standard error streams.
 
 While `System.out` and `System.err` are useful for quick debugging, they are limited in production environments. These streams lack structure, consistent severity levels, and the contextual metadata that is critical for monitoring distributed systems. In contrast, the `java.util.logging` API produces structured logs with fine-grained control over log levels, built-in support for exceptions, and better integration with telemetry tools like Grafana.
 
@@ -432,17 +439,34 @@ include::start/inventory/src/main/java/io/openliberty/guides/inventory/client/Sy
 
 Currently, the [hotspot file=0]`SystemClient` class logs messages using [hotspot=out3 hotspot=out4 hotspot=out8 file=0]`System.out` and [hotspot=out1 hotspot=out2 hotspot=out5 hotspot=out6 hotspot=out7 file=0]`System.err`.
 
-To observe a basic standard output log, point your browser to the http://localhost:9081/inventory/systems/localhost URL and open the Grafana dashboard at the http://localhost:3000/ URL. In the **Explore** view, select the **Loki** data source and filter by `service_name = inventory`. Expand the log entry for `Received response with status: 200`. The message appears as an `info` detected level log. The `io_openliberty_module` field is set to `SystemOut`.
+To observe a basic standard output log, open your browser and navigate to the http://localhost:9081/inventory/systems/localhost URL. Then, open the Grafana dashboard at the http://localhost:3000 URL.
+
+In the **Explore** view, select the **Loki** data source and set a filter for `service_name = inventory`. Click the **Run query** button to execute the search.
+
+In the **Logs** section, show the results in logs visualization by selecting the **Logs** view from the upper-right corner. This enables log expansion.
+
+image::logs_view.png[Logs view,align="center"]
+
+Look for the log entry that says `Received response with status: 200`. When expanded, you'll see that both the `detected_level` and the `io_openliberty_module` fields are set to `SystemOut`.
 
 image::log_system_out_println_ok.png[Log by using the System.out.println method,align="center"]
 {empty} +
 
-Now access the http://localhost:9081/inventory/systems/unknown URL to simulate an exception. This request targets a non-existent host and triggers a `RuntimeException`. Re-run the same Grafana query. The resulting log appears with a `warn` detected level. The `io_openliberty_module` field is set to `SystemErr`. The stack trace is embedded directly in the log body, making it harder to parse programmatically.
+Now access the http://localhost:9081/inventory/systems/unknown URL to simulate an exception. This request targets a non-existent host and triggers a `RuntimeException`.
+
+Re-run the same query in Grafana. In the **Logs** section, expand the log entry:
+
+[role="no_copy"]
+----
+Unexpected exception while processing system service request: RESTEASY004655: Unable to invoke request: java.net.UnknownHostException: unknown: nodename nor servname provided, or not known
+----
+
+This log entry shows `SystemErr` as the value for both the `detected_level` and `io_openliberty_module` fields, with the stack trace included directly in the log message.
 
 image::log_system_out_println_exception.png[Log by using the System.out.println method,align="center"]
 {empty} +
 
-Although both `System.out` and `System.err` logs are collected, you can see that they do not provide structured metadata. You cannot filter logs by severity beyond the basic `info` and `warn` levels, nor can you separate stack traces or correlate logs with the context.
+Although both `System.out` and `System.err` logs are collected, they do not provide structured metadata. You cannot identify logs by severity, separate stack traces, or correlate logs with contextual information such as the originating class or error type.
 
 To enable structured logging, update your application to use the `java.util.logging` API.
 
@@ -458,16 +482,16 @@ SystemClient.java
 include::finish/inventory/src/main/java/io/openliberty/guides/inventory/client/SystemClient.java[]
 ----
 
-Update the [hotspot file=1]`SystemClient` class in the `inventory` service to use the [hotspot=getLogger file=1]`Logger.getLogger()` method to retrieve a logger instance, and the [hotspot=log1 hotspot=log2 hotspot=log3 hotspot=log4 hotspot=log5 hotspot=log6 hotspot=log7 file=1]`Logger.log()` method to emit log messages at specific levels like [hotspot=log3 file=1]`INFO`, [hotspot=log4 file=1]`WARNING`, or [hotspot=log1 hotspot=log2 hotspot=log5 hotspot=log6 hotspot=log7 file=1]`SEVERE` based on the context.
+The updated [hotspot file=1]`SystemClient` class uses the [hotspot=getLogger file=1]`Logger.getLogger()` method to retrieve a logger instance and the [hotspot=log1 hotspot=log2 hotspot=log3 hotspot=log4 hotspot=log5 hotspot=log6 hotspot=log7 file=1]`Logger.log()` method to emit log messages at specific levels such as [hotspot=log3 file=1]`INFO` or [hotspot=log1 hotspot=log2 hotspot=log4 hotspot=log5 hotspot=log6 hotspot=log7 file=1]`WARNING` based on the context.
 
 Because you are running the services in dev mode, the changes that you made are automatically picked up.
 
-Return to the http://localhost:9081/inventory/systems/localhost URL and re-run the Loki query in Grafana. This time, the log is more structured. The `io_openliberty_module` field contains the actual logger name, making it easier to trace log origins.
+Return to the http://localhost:9081/inventory/systems/localhost URL and re-run the Loki query in Grafana. This time, the log is structured. The `detected_level` is set to `INFO`, and the `io_openliberty_module` field contains the logger name, making it easier to trace the origin of the log.
 
 image::log_logger_ok.png[Log by using the java.util.logging API,align="center"]
 {empty} +
 
-Access the http://localhost:9081/inventory/systems/unknown URL again to generate an exception and re-run the Loki query in Grafana. The resulting log indicates the `error` severity by the `detected_level` field, the structured exception stack by the `exception_stacktrace` field, and the `jakarta.ws.rs.ProcessingException` exception by the `exception_type` field.
+Access the http://localhost:9081/inventory/systems/unknown URL again to simulate an exception, then re-run the Loki query in Grafana. The resulting log shows `WARNING` in the `detected_level` field, includes a structured stack trace in the `exception_stacktrace` field, and identifies the exception type as `jakarta.ws.rs.ProcessingException` in the `exception_type` field.
 
 image::log_logger_exception.png[Log by using the java.util.logging API,align="center"]
 {empty} +

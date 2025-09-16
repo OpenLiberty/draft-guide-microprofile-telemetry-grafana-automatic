@@ -49,7 +49,7 @@ public class SystemClient implements AutoCloseable {
             return uri.toString();
         } catch (Exception e) {
             // tag::log1[]
-            logger.log(Level.SEVERE,
+            logger.log(Level.WARNING,
                 "URISyntaxException while building system service URL", e);
             // end::log1[]
             return null;
@@ -63,7 +63,7 @@ public class SystemClient implements AutoCloseable {
             return builder.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         } catch (Exception e) {
             // tag::log2[]
-            logger.log(Level.SEVERE,
+            logger.log(Level.WARNING,
                 "Exception while creating REST client builder", e);
             // end::log2[]
             return null;
@@ -90,12 +90,12 @@ public class SystemClient implements AutoCloseable {
             }
         } catch (RuntimeException e) {
             // tag::log5[]
-            logger.log(Level.SEVERE,
+            logger.log(Level.WARNING,
                 "Runtime exception while invoking system service", e);
             // end::log5[]
         } catch (Exception e) {
             // tag::log6[]
-            logger.log(Level.SEVERE,
+            logger.log(Level.WARNING,
                 "Unexpected exception while processing system service request", e);
             // end::log6[]
         }
@@ -118,7 +118,7 @@ public class SystemClient implements AutoCloseable {
             }
         } catch (Exception e) {
             // tag::log7[]
-            logger.log(Level.SEVERE,
+            logger.log(Level.WARNING,
                 "Unexpected exception while invoking system health endpoint", e);
             // end::log7[]
         }
