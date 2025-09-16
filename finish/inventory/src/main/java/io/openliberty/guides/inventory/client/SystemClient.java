@@ -27,7 +27,7 @@ import jakarta.ws.rs.core.Response.Status;
 public class SystemClient implements AutoCloseable {
 
     // tag::getLogger[]
-    private static final Logger logger = Logger.getLogger(SystemClient.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SystemClient.class.getName());
     // end::getLogger[]
 
     private static final String PROTOCOL = "http";
@@ -49,7 +49,7 @@ public class SystemClient implements AutoCloseable {
             return uri.toString();
         } catch (Exception e) {
             // tag::log1[]
-            logger.log(Level.WARNING,
+            LOGGER.log(Level.WARNING,
                 "URISyntaxException while building system service URL", e);
             // end::log1[]
             return null;
@@ -63,7 +63,7 @@ public class SystemClient implements AutoCloseable {
             return builder.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         } catch (Exception e) {
             // tag::log2[]
-            logger.log(Level.WARNING,
+            LOGGER.log(Level.WARNING,
                 "Exception while creating REST client builder", e);
             // end::log2[]
             return null;
@@ -73,29 +73,32 @@ public class SystemClient implements AutoCloseable {
     public Properties getProperties() {
         String url = buildUrl(SYSTEM_PROPERTIES);
         Builder builder = buildClientBuilder(url);
-        if (builder == null) return null;
+        if (builder == null) {
+            return null;
+        }
+
         try {
             Response response = builder.get();
             // tag::log3[]
-            logger.log(Level.INFO,
+            LOGGER.log(Level.INFO,
                 "Received response with status: {0}", response.getStatus());
             // end::log3[]
             if (response.getStatus() == Status.OK.getStatusCode()) {
                 return response.readEntity(Properties.class);
             } else {
                 // tag::log4[]
-                logger.log(Level.WARNING,
+                LOGGER.log(Level.WARNING,
                     "Response Status is not OK: {0}", response.getStatus());
                 // end::log4[]
             }
         } catch (RuntimeException e) {
             // tag::log5[]
-            logger.log(Level.WARNING,
+            LOGGER.log(Level.WARNING,
                 "Runtime exception while invoking system service", e);
             // end::log5[]
         } catch (Exception e) {
             // tag::log6[]
-            logger.log(Level.WARNING,
+            LOGGER.log(Level.WARNING,
                 "Unexpected exception while processing system service request", e);
             // end::log6[]
         }
@@ -105,7 +108,10 @@ public class SystemClient implements AutoCloseable {
     public String getHealth() {
         String url = buildUrl(SYSTEM_HEALTH);
         Builder builder = buildClientBuilder(url);
-        if (builder == null) return "ERROR";
+        if (builder == null) {
+            return "ERROR";
+        }
+
         try {
             Response response = builder.get();
             int statusCode = response.getStatus();
@@ -118,7 +124,7 @@ public class SystemClient implements AutoCloseable {
             }
         } catch (Exception e) {
             // tag::log7[]
-            logger.log(Level.WARNING,
+            LOGGER.log(Level.WARNING,
                 "Unexpected exception while invoking system health endpoint", e);
             // end::log7[]
         }
