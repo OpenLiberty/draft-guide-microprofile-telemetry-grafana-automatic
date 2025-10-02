@@ -291,7 +291,7 @@ include::finish/system/src/main/liberty/config/server.xml[]
 
 Similarly, the added [hotspot=mpTelemetry file=1]`mpTelemetry` feature enables telemetry support for the `system` service.
 
-By default, MicroProfile Telemetry is disabled to reduce performance overhead. To enable it, set the `otel.sdk.disabled` property to `false` in a valid configuration source.
+By default, the OpenTelemetry SDK is disabled to reduce performance overhead. To enable it, set the `otel.sdk.disabled` property to `false` in a valid configuration source.
 
 [role="code_command hotspot file=2", subs="quotes"]
 ----
@@ -305,7 +305,7 @@ inventory/bootstrap.properties
 include::finish/inventory/src/main/liberty/config/bootstrap.properties[]
 ----
 
-Setting the [hotspot=disabled file=2]`otel.sdk.disabled=false` property in the https://openliberty.io/docs/latest/reference/bootstrap-properties.html[bootstrap properties^] file enables telemetry collection. Because this file applies configuration at the runtime level, it allows both runtime and application telemetry to be collected. If you instead configure this property at the application level, runtime telemetry will not be collected. See the https://openliberty.io/docs/latest/microprofile-telemetry.html#global[MicroProfile Telemetry configuration documentation^] for details.
+Setting the [hotspot=disabled file=2]`otel.sdk.disabled` property to `false` property in the https://openliberty.io/docs/latest/reference/bootstrap-properties.html[bootstrap properties^] file enables telemetry collection at the runtime level. This allows both runtime and application telemetry to be collected. If you instead configure this property at the application level, runtime telemetry will not be included. For more information, refer to the https://openliberty.io/docs/latest/microprofile-telemetry.html#global[MicroProfile Telemetry configuration documentation^].
 
 The [hotspot=service file=2]`otel.service.name` property sets the service name to `inventory`, helping identify the source of the telemetry data in monitoring tools like Grafana.
 
