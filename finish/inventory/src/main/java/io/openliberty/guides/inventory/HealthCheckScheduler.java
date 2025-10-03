@@ -11,8 +11,6 @@
 // end::copyright[]
 package io.openliberty.guides.inventory;
 
-import java.util.logging.Logger;
-
 import jakarta.ejb.Schedule;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
@@ -22,14 +20,11 @@ import jakarta.inject.Inject;
 @Startup
 public class HealthCheckScheduler {
 
-    private static final Logger logger = Logger.getLogger(HealthCheckScheduler.class.getName());
-    
     @Inject
     private InventoryManager inventoryManager;
-    
+
     @Schedule(hour = "*", minute = "*", second = "*/30", persistent = false)
     public void performHealthChecks() {
-        int updated = inventoryManager.refreshAllSystemsHealth();
-        logger.info("Scheduled health check completed. Updated " + updated + " system(s).");
+        inventoryManager.refreshAllSystemsHealth();
     }
 }
