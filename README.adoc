@@ -12,14 +12,14 @@
 :page-releasedate: 2025-06-01
 :page-guide-category: microprofile
 :page-essential: false
-:page-description: Learn how to enable the collection of traces, metrics, and logs from microservices using MicroProfile Telemetry and the Grafana stack.
+:page-description: Learn how to enable the collection of traces, metrics, and logs from microservices by using MicroProfile Telemetry and the Grafana stack.
 :guide-author: Open Liberty
 :page-tags: ['microprofile']
 :page-permalink: /guides/{projectid}
 :common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/prod
 :page-related-guides: [ 'microprofile-telemetry-grafana-custom', 'microprofile-telemetry-jaeger', 'microprofile-metrics', 'microprofile-health' ]
 :imagesdir: /img/guide/{projectid}
-:page-seo-title: Collecting automatic traces, metrics, and logs in Java microservices using MicroProfile Telemetry and Grafana
+:page-seo-title: Collecting automatic traces, metrics, and logs in Java microservices with MicroProfile Telemetry and Grafana
 :page-seo-description: A getting started tutorial on how to enable the collection of traces, metrics, and logs from Java microservices by using MicroProfile Telemetry in Open Liberty and visualizing them with the Grafana stack built on the grafana/otel-lgtm Docker image.
 :source-highlighter: prettify
 = Enabling observability in microservices with traces, metrics, and logs using OpenTelemetry and Grafana
@@ -27,7 +27,7 @@
 [.hidden]
 NOTE: This repository contains the guide documentation source. To view the guide in published form, view it on the https://openliberty.io/guides/{projectid}.html[Open Liberty website].
 
-Learn how to enable the collection of traces, metrics, and logs from microservices using MicroProfile Telemetry and the Grafana stack.
+Learn how to enable the collection of traces, metrics, and logs from microservices by using MicroProfile Telemetry and the Grafana stack.
 
 // =================================================================================================
 //  What you'll learn
@@ -36,7 +36,7 @@ Learn how to enable the collection of traces, metrics, and logs from microservic
 
 In a microservices architecture, it can be difficult to understand how services interact, where latency occurs, and what causes failures. Without visibility across service boundaries, diagnosing issues and tuning performance can become slow and error-prone.
 
-Observability helps address these challenges by capturing telemetry data such as logs, metrics, and traces. https://opentelemetry.io/[OpenTelemetry^] is an open-source framework that provides APIs, SDKs, and tools for generating and managing this data. MicroProfile Telemetry adopts OpenTelemetry to enable both automatic and manual instrumentation in MicroProfile applications. Traces and metrics, along with runtime and application logs, can be exported in a standardized format through an OpenTelemetry Collector to any compatible backend.
+Observability helps address these challenges by capturing telemetry data such as logs, metrics, and traces. https://opentelemetry.io/[OpenTelemetry^] is an open source framework that provides APIs, SDKs, and tools for generating and managing this data. MicroProfile Telemetry adopts OpenTelemetry to enable both automatic and manual instrumentation in MicroProfile applications. Traces and metrics, along with runtime and application logs, can be exported in a standardized format through an OpenTelemetry Collector to any compatible backend.
 
 In this guide, you'll use the https://github.com/grafana/docker-otel-lgtm/?tab=readme-ov-file#docker-otel-lgtm[Grafana Docker OpenTelemetry LGTM^] image (`grafana/otel-lgtm`), an open source Docker image that provides a preconfigured observability backend for OpenTelemetry, based on the https://grafana.com/about/grafana-stack/[Grafana stack^]. This setup includes:
 
@@ -167,15 +167,15 @@ To explore its telemetry data, open the Grafana dashboard at the http://localhos
 
 **View trace with Tempo:**
 
-1. Open the **Explore** view from the left-hand menu.
+1. Open the **Explore** view from the left menu.
 
 2. Select **Tempo** as the data source.
 
 3. Set **Query type** to `Search`.
 
-4. Click **Run query** at the top-right corner to list recent traces.
+4. Click **Run query** at the upper-right corner to list recent traces.
 
-5. Click a trace ID with the `GET /inventory/systems/{hostname}` name that you just generated. You will see the following result:
+5. Click a trace ID with the `GET /inventory/systems/{hostname}` name that you generated. You see the following result:
 
 +
 image::inventory_default_spans.png[`GET /inventory/systems/{hostname}` trace,align="center"]
@@ -195,11 +195,11 @@ This graph helps visualize the request flow across services and identify any lat
 
 **View logs with Loki:**
 
-You can click on a **Log** icon beside a span to see the logs associated with it.
+You can click a **Log** icon beside a span to see the logs associated with it.
 
 You can also follow the following steps to explore the application and runtimes logs from both services:
 
-1. Open the **Drilldown -> Logs** view from the left-hand menu. This view displays an overview of time series and log visualizations for all services sending logs to Loki.
+1. Open the **Drilldown -> Logs** view from the left menu. This view displays an overview of time series and log visualizations for all services that send logs to Loki.
 
 2. Click the **Show logs** button for a specific service to display its logs.
 
@@ -212,7 +212,7 @@ image::log_logger_ok.png[Example of log detail,align="center"]
 
 **View metrics with Prometheus:**
 
-1. Open the **Drilldown -> Metrics** view from the left-hand menu. This view shows a query-less experience for browsing the available metrics collected by Prometheus.
+1. Open the **Drilldown -> Metrics** view from the left menu. This view shows a query-less experience for browsing the available metrics that are collected by Prometheus.
 
 +
 image::metrics_overview.png[Metrics overview,align="center"]
@@ -309,7 +309,7 @@ Setting the [hotspot=disabled file=2]`otel.sdk.disabled` property to `false` pro
 
 The [hotspot=service file=2]`otel.service.name` property sets the service name to `inventory`, helping identify the source of the telemetry data in monitoring tools like Grafana.
 
-The observability backend provided by the `grafana/otel-lgtm` image receives telemetry data using the OTLP protocol, the default for OpenTelemetry. Therefore, no additional exporter configuration is needed.
+The observability backend provided by the `grafana/otel-lgtm` image receives telemetry data through the OTLP protocol, which is the default for OpenTelemetry. Therefore, no extra exporter configuration is needed.
 
 [role="code_command hotspot file=3", subs="quotes"]
 ----
@@ -401,12 +401,12 @@ When both services are running, visit the http://localhost:9081/inventory/system
 
 To explore the automatic telemetry data, open the Grafana dashboard at the http://localhost:3000 URL.
 
-View the traces that were automatically created from your request in the Grafana dashboard. From the left menu, open the **Explore** view and select **Tempo** as the data source. For **Query type**, choose `Search`, then click **Run query**. You will see that the first result is the trace for the `GET /inventory/systems/{hostname}` request from the `inventory` service. Click the trace ID to open the trace details and verify that there are three spans from the `inventory` service and two spans from the `system` service.
+View the traces that were automatically created from your request in the Grafana dashboard. From the left menu, open the **Explore** view and select **Tempo** as the data source. For **Query type**, choose `Search`, then click **Run query**. You see that the first result is the trace for the `GET /inventory/systems/{hostname}` request from the `inventory` service. Click the trace ID to open the trace details and verify that there are three spans from the `inventory` service and two spans from the `system` service.
 
 image::inventory_default_spans.png[Inventory default spans,align="center"]
 {empty} +
 
-View the messages logs to see timestamped events from the server startup in the dashboard. Navigate to the **Drilldown -> Logs** from the menu. You can click on **Show logs** from each service to see the detailed context for each log.
+View the messages logs to see timestamped events from the server startup in the dashboard. Navigate to the **Drilldown -> Logs** from the menu. You can click **Show logs** from each service to see the detailed context for each log.
 
 image::logs_server_startup.png[Server startup logs,align="center"]
 {empty} +
@@ -426,7 +426,7 @@ image::red_metrics.png[RED Metrics,align="center"]
 // =================================================================================================
 == Enhancing application logs
 
-When MicroProfile Telemetry is enabled, OpenTelemetry automatically collects logs from the Liberty message log stream. This includes logs written using the `java.util.logging` API at the `INFO` level or higher, as well as messages from the `System.out` standard output and `System.err` standard error streams.
+When MicroProfile Telemetry is enabled, OpenTelemetry automatically collects logs from the Liberty message log stream. This includes logs that are written by using the `java.util.logging` API at the `INFO` level or higher, as well as messages from the `System.out` standard output and `System.err` standard error streams.
 
 While `System.out` and `System.err` are useful for quick debugging, they are limited in production environments. These streams lack structure, consistent severity levels, and the contextual metadata that is critical for monitoring distributed systems. In contrast, the `java.util.logging` API produces structured logs with fine-grained control over log levels, built-in support for exceptions, and better integration with telemetry tools like Grafana.
 
@@ -437,24 +437,24 @@ SystemClient.java
 include::start/inventory/src/main/java/io/openliberty/guides/inventory/client/SystemClient.java[]
 ----
 
-Currently, the [hotspot file=0]`SystemClient` class logs messages using [hotspot=out3 hotspot=out4 hotspot=out8 file=0]`System.out` and [hotspot=out1 hotspot=out2 hotspot=out5 hotspot=out6 hotspot=out7 file=0]`System.err`.
+Currently, the [hotspot file=0]`SystemClient` class logs messages by using [hotspot=out3 hotspot=out4 hotspot=out8 file=0]`System.out` and [hotspot=out1 hotspot=out2 hotspot=out5 hotspot=out6 hotspot=out7 file=0]`System.err`.
 
 To observe a basic standard output log, open your browser and navigate to the http://localhost:9081/inventory/systems/localhost URL. Then, open the Grafana dashboard at the http://localhost:3000 URL.
 
-In the **Explore** view, select the **Loki** data source and set a filter for `service_name = inventory`. Click the **Run query** button to execute the search.
+In the **Explore** view, select the **Loki** data source and set a filter for `service_name = inventory`. Click the **Run query** button to run the search.
 
-In the **Logs** section, show the results in logs visualization by selecting the **Logs** view from the upper-right corner. This enables log expansion.
+In the **Logs** section, select the **Logs** view from the upper-right corner to show the results in logs visualization. This enables log expansion.
 
 image::logs_view.png[Logs view,align="center"]
 
-Look for the log entry that says `Received response with status: 200`. When expanded, you'll see that both the `detected_level` and the `io_openliberty_module` fields are set to `SystemOut`.
+Look for the log entry that says `Received response with status: 200`. When expanded, you see that both the `detected_level` and the `io_openliberty_module` fields are set to `SystemOut`.
 
 image::log_system_out_println_ok.png[Log by using the System.out.println method,align="center"]
 {empty} +
 
-Now access the http://localhost:9081/inventory/systems/unknown URL to simulate an exception. This request targets a non-existent host and triggers a `RuntimeException`.
+Now, access the http://localhost:9081/inventory/systems/unknown URL to simulate an exception. This request targets a nonexistent host and triggers a `RuntimeException`.
 
-Re-run the same query in Grafana. In the **Logs** section, expand the log entry:
+Rerun the same query in Grafana. In the **Logs** section, expand the log entry:
 
 [role="no_copy"]
 ----
@@ -486,17 +486,17 @@ The updated [hotspot file=1]`SystemClient` class uses the [hotspot=getLogger fil
 
 Because you are running the services in dev mode, the changes that you made are automatically picked up.
 
-Return to the http://localhost:9081/inventory/systems/localhost URL and re-run the Loki query in Grafana. This time, the log is structured. The `detected_level` is set to `INFO`, and the `io_openliberty_module` field contains the logger name, making it easier to trace the origin of the log.
+Return to the http://localhost:9081/inventory/systems/localhost URL and rerun the Loki query in Grafana. This time, the log is structured. The `detected_level` is set to `INFO`, and the `io_openliberty_module` field contains the logger name, making it easier to trace the origin of the log.
 
 image::log_logger_ok.png[Log by using the java.util.logging API,align="center"]
 {empty} +
 
-Access the http://localhost:9081/inventory/systems/unknown URL again to simulate an exception, then re-run the Loki query in Grafana. The resulting log shows `WARNING` in the `detected_level` field, includes a structured stack trace in the `exception_stacktrace` field, and identifies the exception type as `jakarta.ws.rs.ProcessingException` in the `exception_type` field.
+Access the http://localhost:9081/inventory/systems/unknown URL again to simulate an exception, then rerun the Loki query in Grafana. The resulting log shows `WARNING` in the `detected_level` field, includes a structured stack trace in the `exception_stacktrace` field, and identifies the exception type as `jakarta.ws.rs.ProcessingException` in the `exception_type` field.
 
 image::log_logger_exception.png[Log by using the java.util.logging API,align="center"]
 {empty} +
 
-By default, OpenTelemetry collects only message logs. For details on how to include additional sources, see https://openliberty.io/docs/latest/reference/feature/mpTelemetry-2.0.html#logs[Collect logs from a specified source^].
+By default, OpenTelemetry collects only message logs. For details on how to include other sources, see https://openliberty.io/docs/latest/reference/feature/mpTelemetry-2.0.html#logs[Collect logs from a specified source^].
 
 // =================================================================================================
 // Testing the application 
@@ -507,7 +507,7 @@ Manually verify the telemetry signals by inspecting them in the Grafana dashboar
 
 === Running the tests
 
-Since you started Open Liberty in dev mode, run the tests for the `system` and `inventory` services by pressing the `enter/return` key in the command-line sessions where you started the services.
+Because you started Open Liberty in dev mode, you can run the tests for the `system` and `inventory` services by pressing the `enter/return` key from the command-line sessions where you started the services.
 
 When you are done checking out the services, exit dev mode by pressing `CTRL+C` in the shell sessions where you ran the `system` and `inventory` services.
 
