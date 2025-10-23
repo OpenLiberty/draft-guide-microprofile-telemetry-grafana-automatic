@@ -157,13 +157,9 @@ After you see the following message in both command-line sessions, both of your 
 The defaultServer server is ready to run a smarter planet.
 ----
 
-When both services are running, navigate your browser to the http://localhost:9081/inventory/systems/localhost URL.
+When both services are running, navigate your browser to the http://localhost:9081/inventory/systems/localhost/properties URL. This triggers an HTTP GET request to the `inventory` service, which then makes an outbound GET request to the `/system/properties` endpoint of the `system` service. If the request succeeds, the system `localhost` is stored in the inventory. In addition, the `inventory` service automatically pings the `system` service every 30 seconds to refresh the health status of all systems currently tracked in the inventory.
 
-When you visit this endpoint, it sends an HTTP GET request to the `inventory` service. The `inventory` service then makes two outbound GET requests to the `system` service. One request goes to the `/system/properties` endpoint, and the other goes to the `/health` endpoint.
-
-In addition, the `inventory` service automatically pings the `system` service every 30 seconds to refresh the health status of all systems in the inventory.
-
-To explore its telemetry data, open the Grafana dashboard at the http://localhost:3000 URL and follow these steps:
+To view telemetry data, open the Grafana dashboard at the http://localhost:3000 URL and follow these steps:
 
 **View trace with Tempo:**
 
@@ -175,18 +171,18 @@ To explore its telemetry data, open the Grafana dashboard at the http://localhos
 
 4. Click **Run query** at the upper-right corner to list recent traces.
 
-5. Click a trace ID with the `GET /inventory/systems/{hostname}` name that you generated. You see the following result:
+5. Click a trace ID with the name `GET /inventory/systems/{hostname}/properties` that you generated. You see the following result:
 
 +
-image::inventory_default_spans.png[`GET /inventory/systems/{hostname}` trace,align="center"]
+image::inventory_default_spans.png[`GET /inventory/systems/{hostname}/properties` trace,align="center"]
 
 +
-The trace contains five spans, one for the initial request to the `inventory` endpoint, two client spans from the `inventory` service making outbound calls to the `system` service, and two server spans from the `system` service handling those requests. Under **Service & Operation**, you see the spans in this trace. You can inspect each span by clicking it to reveal more detailed information, such as the times that a request was received and a response was sent.
+The trace contains three spans, one for the initial request to the `inventory` endpoint, one client span from the `inventory` service making outbound call to the `system` service, and one server span from the `system` service handling that request. Under **Service & Operation**, you can view these spans and click each one to inspect details such as when the request was received and when the response was sent, along with metadata like HTTP method, status code, and endpoint path.
 
 6. Expand the **Node graph** to see the relationship of spans between the `inventory` and `system` microservices.
 
 +
-image::inventory_node_graph.png[`GET /inventory/systems/{hostname}` node graph,align="center"]
+image::inventory_node_graph.png[`GET /inventory/systems/{hostname}/properties` node graph,align="center"]
 
 +
 This graph helps visualize the request flow across services and identify any latency hotspots or bottlenecks.
@@ -397,11 +393,11 @@ After you see the following message, your Liberty instance is ready in dev mode:
 
 Dev mode holds your command-line session to listen for file changes. Open another command-line session to continue, or open the project in your editor.
 
-When both services are running, visit the http://localhost:9081/inventory/systems/localhost URL to trigger automatic telemetry collection for the request. By default, OpenTelemetry generates trace spans for incoming HTTP requests to JAX-RS and REST endpoints, collects runtime and application metrics such as HTTP request durations and JVM performance, and captures message logs written by the application or Liberty runtime at the `INFO` level or higher.
+When both services are running, visit the http://localhost:9081/inventory/systems/localhost/properties URL to trigger automatic telemetry collection for the request. By default, OpenTelemetry generates trace spans for incoming HTTP requests to JAX-RS and REST endpoints, collects runtime and application metrics such as HTTP request durations and JVM performance, and captures message logs written by the application or Liberty runtime at the `INFO` level or higher.
 
 To explore the automatic telemetry data, open the Grafana dashboard at the http://localhost:3000 URL.
 
-View the traces that were automatically created from your request in the Grafana dashboard. From the left menu, open the **Explore** view and select **Tempo** as the data source. For **Query type**, choose `Search`, then click **Run query**. You see that the first result is the trace for the `GET /inventory/systems/{hostname}` request from the `inventory` service. Click the trace ID to open the trace details and verify that there are three spans from the `inventory` service and two spans from the `system` service.
+View the traces that were automatically created from your request in the Grafana dashboard. From the left menu, open the **Explore** view and select **Tempo** as the data source. For **Query type**, choose `Search`, then click **Run query**. You see that the first result is the trace for the `GET /inventory/systems/{hostname}/properties` request from the `inventory` service. Click the trace ID to open the trace details and verify that there are two spans from the `inventory` service and one span from the `system` service.
 
 image::inventory_default_spans.png[Inventory default spans,align="center"]
 {empty} +
@@ -439,7 +435,7 @@ include::start/inventory/src/main/java/io/openliberty/guides/inventory/client/Sy
 
 Currently, the [hotspot file=0]`SystemClient` class logs messages by using [hotspot=out3 hotspot=out4 hotspot=out8 file=0]`System.out` and [hotspot=out1 hotspot=out2 hotspot=out5 hotspot=out6 hotspot=out7 file=0]`System.err`.
 
-To observe a basic standard output log, open your browser and navigate to the http://localhost:9081/inventory/systems/localhost URL. Then, open the Grafana dashboard at the http://localhost:3000 URL.
+To observe a basic standard output log, open your browser and navigate to the http://localhost:9081/inventory/systems/localhost/properties URL. Then, open the Grafana dashboard at the http://localhost:3000 URL.
 
 In the **Explore** view, select the **Loki** data source and set a filter for `service_name = inventory`. Click the **Run query** button to run the search.
 
@@ -486,12 +482,12 @@ The updated [hotspot file=1]`SystemClient` class uses the [hotspot=getLogger fil
 
 Because you are running the services in dev mode, the changes that you made are automatically picked up.
 
-Return to the http://localhost:9081/inventory/systems/localhost URL and rerun the Loki query in Grafana. This time, the log is structured. The `detected_level` is set to `INFO`, and the `io_openliberty_module` field contains the logger name, making it easier to trace the origin of the log.
+Return to the http://localhost:9081/inventory/systems/localhost/properties URL and rerun the Loki query in Grafana. This time, the log is structured. The `detected_level` is set to `INFO`, and the `io_openliberty_module` field contains the logger name, making it easier to trace the origin of the log.
 
 image::log_logger_ok.png[Log by using the java.util.logging API,align="center"]
 {empty} +
 
-Access the http://localhost:9081/inventory/systems/unknown URL again to simulate an exception, then rerun the Loki query in Grafana. The resulting log shows `WARNING` in the `detected_level` field, includes a structured stack trace in the `exception_stacktrace` field, and identifies the exception type as `jakarta.ws.rs.ProcessingException` in the `exception_type` field.
+Access the http://localhost:9081/inventory/systems/unknown/properties URL again to simulate an exception, then rerun the Loki query in Grafana. The resulting log shows `WARNING` in the `detected_level` field, includes a structured stack trace in the `exception_stacktrace` field, and identifies the exception type as `jakarta.ws.rs.ProcessingException` in the `exception_type` field.
 
 image::log_logger_exception.png[Log by using the java.util.logging API,align="center"]
 {empty} +

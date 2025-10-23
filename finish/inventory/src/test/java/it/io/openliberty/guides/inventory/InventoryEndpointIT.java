@@ -146,8 +146,8 @@ public class InventoryEndpointIT {
         Response response = this.getResponse(invUrl + INVENTORY_SYSTEMS);
         this.assertResponse(invUrl, response);
 
-        Response badResponse = client.target(invUrl + INVENTORY_SYSTEMS + "/"
-                               + "badhostname").request(MediaType.APPLICATION_JSON)
+        Response badResponse = client.target(invUrl + INVENTORY_SYSTEMS + "/badhostname/properties")
+                               .request(MediaType.APPLICATION_JSON)
                                .get();
 
         assertEquals(404, badResponse.getStatus(),
@@ -184,7 +184,7 @@ public class InventoryEndpointIT {
         response.close();
 
         Response targetResponse = client.target(invUrl
-                                               + INVENTORY_SYSTEMS + "/localhost")
+                                               + INVENTORY_SYSTEMS + "/localhost/properties")
                                                .request()
                                                .get();
         targetResponse.close();

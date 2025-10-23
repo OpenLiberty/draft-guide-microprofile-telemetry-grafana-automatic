@@ -39,6 +39,11 @@ public class InventoryManager {
     }
 
     public Properties getProperties(String hostname) {
+        SystemData system = systems.get(hostname);
+        if (system != null && system.getProperties() != null) {
+            return system.getProperties();
+        }
+
         try (SystemClient client = new SystemClient()) {
             client.init(hostname, SYSTEM_PORT);
             return client.getProperties();
@@ -56,17 +61,21 @@ public class InventoryManager {
         return new InventoryList(new ArrayList<>(systems.values()));
     }
 
-    public void add(String host, Properties systemProps, String health) {
+    public void addProperties(String host, Properties systemProps) {
         Properties props = new Properties();
         props.setProperty("os.name", systemProps.getProperty("os.name"));
         props.setProperty("user.name", systemProps.getProperty("user.name"));
 
-        systems.put(host, new SystemData(host, props, health));
+        systems.put(host, new SystemData(host, props, null));
     }
 
-    public void update(String host, String health) {
+    public void setHealth(String host, String health) {
         SystemData system = systems.get(host);
-        system.setHealth(health);
+        if (system != null) {
+            system.setHealth(health);
+        } else {
+            systems.put(host, new SystemData(host, null, health));
+        }
     }
 
     public int refreshAllSystemsHealth() {
@@ -74,7 +83,7 @@ public class InventoryManager {
         for (SystemData system : systems.values()) {
             String hostname = system.getHostname();
             String newHealth = getHealth(hostname);
-            if (!newHealth.equals(system.getHealth())) {
+            if (newHealth != system.getHealth()) {
                 system.setHealth(newHealth);
                 updated++;
             }

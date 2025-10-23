@@ -36,24 +36,39 @@ public class InventoryResource {
     // end::manager[]
 
     @GET
-    @Path("/{hostname}")
+    @Path("/{hostname}/properties")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPropertiesForHost(@PathParam("hostname") String hostname) {
-        Properties props = null;
-        String health = manager.getHealth(hostname);
-        if (health.equals("ERROR")) {
+        Properties props = manager.getProperties(hostname);
+        if (props == null) {
             return Response.status(Response.Status.NOT_FOUND)
                         .entity("{ \"error\" : \"Unknown hostname or the system "
                         + "service may not be running on " + hostname + "\" }")
                         .build();
         }
-        props = manager.getProperties(hostname);
-        if (!manager.contains(hostname)) {
-            manager.add(hostname, props, health);
-        } else {
-            manager.update(hostname, health);
-        }
+        manager.addProperties(hostname, props);
         return Response.ok(props).build();
+    }
+
+    @GET
+    @Path("/{hostname}/health")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHealthForHost(@PathParam("hostname") String hostname) {
+        String health = manager.getHealth(hostname);
+        if (health.equals("UP")) {
+            manager.setHealth(hostname, health);
+            return Response.ok("{\"status\": \"UP\"}")
+                           .build();
+        }
+        if (health.equals("DOWN")) {
+            manager.setHealth(hostname, health);
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                           .entity("{\"status\": \"DOWN\"}")
+                           .build();
+        }
+        return Response.status(Response.Status.NOT_FOUND)
+                       .entity("{\"status\": \"ERROR\"}")
+                       .build();
     }
 
     @POST
