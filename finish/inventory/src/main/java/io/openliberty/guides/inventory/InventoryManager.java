@@ -13,7 +13,6 @@ package io.openliberty.guides.inventory;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -34,26 +33,10 @@ public class InventoryManager {
 
     private Map<String, SystemData> systems = new ConcurrentHashMap<>();
 
-    public boolean contains(String host) {
-        return systems.containsKey(host);
-    }
-
-    public Properties getProperties(String hostname) {
-        SystemData system = systems.get(hostname);
-        if (system != null && system.getProperties() != null) {
-            return system.getProperties();
-        }
-
+    public Map<String, Object> getSystemLoad(String hostname) {
         try (SystemClient client = new SystemClient()) {
             client.init(hostname, SYSTEM_PORT);
-            return client.getProperties();
-        }
-    }
-
-    public String getHealth(String hostname) {
-        try (SystemClient client = new SystemClient()) {
-            client.init(hostname, SYSTEM_PORT);
-            return client.getHealth();
+            return client.getSystemLoad();
         }
     }
 
@@ -61,34 +44,21 @@ public class InventoryManager {
         return new InventoryList(new ArrayList<>(systems.values()));
     }
 
-    public void addProperties(String host, Properties systemProps) {
-        Properties props = new Properties();
-        props.setProperty("os.name", systemProps.getProperty("os.name"));
-        props.setProperty("user.name", systemProps.getProperty("user.name"));
-
-        systems.put(host, new SystemData(host, props, null));
-    }
-
-    public void setHealth(String host, String health) {
+    public void set(String host, Map<String, Object> systemLoad) {
         SystemData system = systems.get(host);
         if (system != null) {
-            system.setHealth(health);
+            system.setSystemLoad(systemLoad);
         } else {
-            systems.put(host, new SystemData(host, null, health));
+            systems.put(host, new SystemData(host, systemLoad));
         }
     }
 
-    public int refreshAllSystemsHealth() {
-        int updated = 0;
+    public void refreshSystemsLoads() {
         for (SystemData system : systems.values()) {
             String hostname = system.getHostname();
-            String newHealth = getHealth(hostname);
-            if (newHealth != system.getHealth()) {
-                system.setHealth(newHealth);
-                updated++;
-            }
+            Map<String, Object> systemLoad = getSystemLoad(hostname);
+            system.setSystemLoad(systemLoad);
         }
-        return updated;
     }
 
     int clear() {

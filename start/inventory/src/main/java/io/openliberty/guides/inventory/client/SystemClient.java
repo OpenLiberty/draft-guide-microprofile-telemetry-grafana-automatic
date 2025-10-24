@@ -12,8 +12,10 @@
 package io.openliberty.guides.inventory.client;
 
 import java.net.URI;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation.Builder;
@@ -25,8 +27,7 @@ import jakarta.ws.rs.core.Response.Status;
 public class SystemClient implements AutoCloseable {
 
     private static final String PROTOCOL = "http";
-    private static final String SYSTEM_PROPERTIES = "/system/properties";
-    private static final String SYSTEM_HEALTH = "/health";
+    private static final String SYSTEM_LOAD = "/system/systemLoad";
 
     private String hostname;
     private int port;
@@ -64,17 +65,25 @@ public class SystemClient implements AutoCloseable {
         }
     }
 
-    public Properties getProperties() {
-        String url = buildUrl(SYSTEM_PROPERTIES);
+    public Map<String, Object> getSystemLoad() {
+        String url = buildUrl(SYSTEM_LOAD);
         Builder builder = buildClientBuilder(url);
-        if (builder == null) return null;
+        if (builder == null) {
+            return null;
+        }
+
         try {
             Response response = builder.get();
             // tag::out3[]
             System.out.println("Received response with status: " + response.getStatus());
             // end::out3[]
             if (response.getStatus() == Status.OK.getStatusCode()) {
-                return response.readEntity(Properties.class);
+                JsonObject jsonResponse = response.readEntity(JsonObject.class);
+                Map<String, Object> systemLoad = new HashMap<>();
+                for (String key : jsonResponse.keySet()) {
+                    systemLoad.put(key, jsonResponse.get(key));
+                }
+                return systemLoad;
             } else {
                 // tag::out4[]
                 System.out.println("Response Status is not OK.");
@@ -94,36 +103,10 @@ public class SystemClient implements AutoCloseable {
         return null;
     }
 
-    public String getHealth() {
-        String url = buildUrl(SYSTEM_HEALTH);
-        Builder builder = buildClientBuilder(url);
-        if (builder == null) return "ERROR";
-        try {
-            Response response = builder.get();
-            int statusCode = response.getStatus();
-            if (statusCode == Status.OK.getStatusCode()) {
-                return "UP";
-            } else if (statusCode == Status.SERVICE_UNAVAILABLE.getStatusCode()) {
-                return "DOWN";
-            } else {
-                return "ERROR";
-            }
-        } catch (Exception e) {
-            // tag::out7[]
-            System.err.println("Unexpected exception while processing system service request: "
-                    + e.getMessage());
-            // end::out7[]
-        }
-        return "ERROR";
-    }
-
     @Override
     public void close() {
         if (client != null) {
             client.close();
-            // tag::out8[]
-            System.out.println("SystemClient HTTP client closed.");
-            // end::out8[]
         }
     }
 }

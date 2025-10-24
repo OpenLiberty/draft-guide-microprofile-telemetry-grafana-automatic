@@ -11,41 +11,27 @@
 // end::copyright[]
 package io.openliberty.guides.inventory.model;
 
-import java.util.Properties;
+import java.util.Map;
 
 public class SystemData {
 
     private final String hostname;
-    private final Properties properties;
-    private String health;
+    private Map<String, Object> systemLoad;
 
-    public SystemData(String hostname, Properties properties, String health) {
+    public SystemData(String hostname, Map<String, Object> systemLoad) {
         this.hostname = hostname;
-        this.properties = properties;
-        this.health = health;
+        this.systemLoad = systemLoad;
     }
 
     public String getHostname() {
         return hostname;
     }
-
-    public Properties getProperties() {
-        return properties;
+    
+    public Map<String, Object> getSystemLoad() {
+        return systemLoad;
     }
 
-    public String getHealth() {
-        return health;
-    }
-
-    public void setHealth(String health) {
-        this.health = health;
-    }
-
-    @Override
-    public boolean equals(Object host) {
-        if (host instanceof SystemData) {
-            return hostname.equals(((SystemData) host).getHostname());
-        }
-        return false;
+    public void setSystemLoad(Map<String, Object> systemLoad) {
+        this.systemLoad = systemLoad;
     }
 }

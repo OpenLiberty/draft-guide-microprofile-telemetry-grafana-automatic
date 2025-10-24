@@ -11,13 +11,12 @@
 // end::copyright[]
 package io.openliberty.guides.inventory;
 
-import java.util.Properties;
+import java.util.Map;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -36,52 +35,18 @@ public class InventoryResource {
     // end::manager[]
 
     @GET
-    @Path("/{hostname}/properties")
+    @Path("/{hostname}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPropertiesForHost(@PathParam("hostname") String hostname) {
-        Properties props = manager.getProperties(hostname);
-        if (props == null) {
+        Map<String, Object> systemLoad = manager.getSystemLoad(hostname);
+        if (systemLoad == null) {
             return Response.status(Response.Status.NOT_FOUND)
                         .entity("{ \"error\" : \"Unknown hostname or the system "
                         + "service may not be running on " + hostname + "\" }")
                         .build();
         }
-        manager.addProperties(hostname, props);
-        return Response.ok(props).build();
-    }
-
-    @GET
-    @Path("/{hostname}/health")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getHealthForHost(@PathParam("hostname") String hostname) {
-        String health = manager.getHealth(hostname);
-        if (health.equals("UP")) {
-            manager.setHealth(hostname, health);
-            return Response.ok("{\"status\": \"UP\"}")
-                           .build();
-        }
-        if (health.equals("DOWN")) {
-            manager.setHealth(hostname, health);
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                           .entity("{\"status\": \"DOWN\"}")
-                           .build();
-        }
-        return Response.status(Response.Status.NOT_FOUND)
-                       .entity("{\"status\": \"ERROR\"}")
-                       .build();
-    }
-
-    @POST
-    @Path("/health/refresh")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response refreshAllSystemsHealth() {
-        int updated = manager.refreshAllSystemsHealth();
-        if (updated == 0) {
-            return Response.ok("{\"ok\": \"No systems needed refresh\"}")
-                           .build();
-        }
-        return Response.ok("{\"ok\": \"Health refresh completed for all systems\", \"updated\": " + updated + "}")
-                       .build();
+        manager.set(hostname, systemLoad);
+        return Response.ok(systemLoad).build();
     }
 
     @GET

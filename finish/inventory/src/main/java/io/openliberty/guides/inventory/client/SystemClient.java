@@ -12,10 +12,12 @@
 package io.openliberty.guides.inventory.client;
 
 import java.net.URI;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation.Builder;
@@ -31,8 +33,7 @@ public class SystemClient implements AutoCloseable {
     // end::getLogger[]
 
     private static final String PROTOCOL = "http";
-    private static final String SYSTEM_PROPERTIES = "/system/properties";
-    private static final String SYSTEM_HEALTH = "/health";
+    private static final String SYSTEM_LOAD = "/system/systemLoad";
 
     private String hostname;
     private int port;
@@ -70,8 +71,8 @@ public class SystemClient implements AutoCloseable {
         }
     }
 
-    public Properties getProperties() {
-        String url = buildUrl(SYSTEM_PROPERTIES);
+    public Map<String, Object> getSystemLoad() {
+        String url = buildUrl(SYSTEM_LOAD);
         Builder builder = buildClientBuilder(url);
         if (builder == null) {
             return null;
@@ -84,7 +85,12 @@ public class SystemClient implements AutoCloseable {
                 "Received response with status: {0}", response.getStatus());
             // end::log3[]
             if (response.getStatus() == Status.OK.getStatusCode()) {
-                return response.readEntity(Properties.class);
+                JsonObject jsonResponse = response.readEntity(JsonObject.class);
+                Map<String, Object> systemLoad = new HashMap<>();
+                for (String key : jsonResponse.keySet()) {
+                    systemLoad.put(key, jsonResponse.get(key));
+                }
+                return systemLoad;
             } else {
                 // tag::log4[]
                 LOGGER.log(Level.WARNING,
@@ -103,32 +109,6 @@ public class SystemClient implements AutoCloseable {
             // end::log6[]
         }
         return null;
-    }
-
-    public String getHealth() {
-        String url = buildUrl(SYSTEM_HEALTH);
-        Builder builder = buildClientBuilder(url);
-        if (builder == null) {
-            return "ERROR";
-        }
-
-        try {
-            Response response = builder.get();
-            int statusCode = response.getStatus();
-            if (statusCode == Status.OK.getStatusCode()) {
-                return "UP";
-            } else if (statusCode == Status.SERVICE_UNAVAILABLE.getStatusCode()) {
-                return "DOWN";
-            } else {
-                return "ERROR";
-            }
-        } catch (Exception e) {
-            // tag::log7[]
-            LOGGER.log(Level.WARNING,
-                "Unexpected exception while invoking system health endpoint", e);
-            // end::log7[]
-        }
-        return "ERROR";
     }
 
     @Override
