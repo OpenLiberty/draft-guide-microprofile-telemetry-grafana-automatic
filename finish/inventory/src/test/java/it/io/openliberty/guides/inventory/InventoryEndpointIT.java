@@ -38,7 +38,7 @@ public class InventoryEndpointIT {
 
     @BeforeAll
     public static void oneTimeSetup() throws ServletException {
-    
+
         String port = System.getProperty("inv.http.port");
         url = "http://localhost:" + port + "/inventory/systems";
 
@@ -130,7 +130,7 @@ public class InventoryEndpointIT {
         this.assertResponse(url, response);
 
         JsonObject obj = response.readEntity(JsonObject.class);
-    
+
         int expected = 1;
         int actual = obj.getInt("total");
         assertEquals(expected, actual,

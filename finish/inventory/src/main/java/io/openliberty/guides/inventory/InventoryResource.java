@@ -63,7 +63,8 @@ public class InventoryResource {
             return Response.ok("{\"ok\": \"No systems to clear\"}")
                            .build();
         }
-        return Response.ok("{\"ok\": \"Cleared all systems\", \"cleared\": " + cleared + "}")
+        return Response.ok("{\"ok\": \"Cleared all systems\", \"cleared\": "
+                           + cleared + "}")
                        .build();
     }
 }

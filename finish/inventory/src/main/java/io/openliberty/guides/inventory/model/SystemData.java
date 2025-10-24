@@ -26,7 +26,7 @@ public class SystemData {
     public String getHostname() {
         return hostname;
     }
-    
+
     public Map<String, Object> getSystemLoad() {
         return systemLoad;
     }

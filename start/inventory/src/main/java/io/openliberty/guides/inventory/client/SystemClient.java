@@ -77,7 +77,9 @@ public class SystemClient implements AutoCloseable {
         try {
             Response response = builder.get();
             // tag::out3[]
-            System.out.println("Received response with status: " + response.getStatus());
+            System.out.println(
+                "Received response with status: "
+                + response.getStatus());
             // end::out3[]
             if (response.getStatus() == Status.OK.getStatusCode()) {
                 JsonObject jsonResponse = response.readEntity(JsonObject.class);

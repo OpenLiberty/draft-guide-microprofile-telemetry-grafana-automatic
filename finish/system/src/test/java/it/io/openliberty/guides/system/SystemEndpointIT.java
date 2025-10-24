@@ -39,11 +39,14 @@ public class SystemEndpointIT {
 
         JsonObject jsonObj = response.readEntity(JsonObject.class);
 
-        assertTrue(jsonObj.containsKey("time"), "Response should contain time");
-        assertTrue(jsonObj.containsKey("cpuLoad"), "Response should contain cpuLoad");
-        assertTrue(jsonObj.containsKey("memoryUsage"), "Response should contain memoryUsage");
+        assertTrue(jsonObj.containsKey("time"),
+            "Response should contain time");
+        assertTrue(jsonObj.containsKey("cpuLoad"),
+            "Response should contain cpuLoad");
+        assertTrue(jsonObj.containsKey("memoryUsage"),
+            "Response should contain memoryUsage");
 
-        assertNotNull(jsonObj.getString("time"), "time is null");
+        assertNotNull(jsonObj.getString("time"),"time is null");
         assertNotNull(jsonObj.getJsonNumber("cpuLoad"), "cpuLoad is null");
         assertNotNull(jsonObj.getJsonNumber("memoryUsage"), "memoryUsage is null");
 
