@@ -16,7 +16,6 @@ import com.sun.management.OperatingSystemMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.util.Calendar;
-import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.Json;
@@ -31,9 +30,6 @@ import jakarta.ws.rs.core.MediaType;
 @Path("systemLoad")
 public class SystemResource {
 
-    private static final Logger LOGGER =
-        Logger.getLogger(SystemResource.class.getName());
-
     private static final OperatingSystemMXBean OS =
         (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
@@ -43,10 +39,6 @@ public class SystemResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JsonObject getSystemLoad() {
-        // tag::log[]
-        LOGGER.info("Received request to fetch system load.");
-        // end::log[]
-    
         long heapMax = MEM.getHeapMemoryUsage().getMax();
         long heapUsed = MEM.getHeapMemoryUsage().getUsed();
 

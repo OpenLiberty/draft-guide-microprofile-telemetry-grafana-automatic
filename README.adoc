@@ -157,11 +157,13 @@ After you see the following message in both command-line sessions, both of your 
 The defaultServer server is ready to run a smarter planet.
 ----
 
-When both services are running, navigate your browser to the http://localhost:9081/inventory/systems/localhost/properties URL. This triggers an HTTP GET request to the `inventory` service, which then makes an outbound GET request to the `/system/properties` endpoint of the `system` service. If the request succeeds, the system `localhost` is stored in the inventory. In addition, the `inventory` service automatically pings the `system` service every 30 seconds to refresh the health status of all systems currently tracked in the inventory.
+When both services are running, visit the http://localhost:9081/inventory/systems/localhost URL to register the `localhost` system in the inventory.
 
-To view telemetry data, open the Grafana dashboard at the http://localhost:3000 URL and follow these steps:
+The `inventory` service makes periodic calls to the `system` service every 15 seconds to refresh system load information for all tracked systems.
 
-**View trace with Tempo:**
+To view the telemetry data generated, open the Grafana dashboard at the http://localhost:3000 URL and follow these steps:
+
+**Viewing trace with Tempo:**
 
 1. Open the **Explore** view from the left menu.
 
@@ -169,44 +171,31 @@ To view telemetry data, open the Grafana dashboard at the http://localhost:3000 
 
 3. Set **Query type** to `Search`.
 
-4. Click **Run query** at the upper-right corner to list recent traces.
+4. Click the blue **Run query** button in the upper-right corner to list recent traces.
 
-5. Click a trace ID with the name `GET /inventory/systems/{hostname}/properties` that you generated. You see the following result:
-
-+
-image::inventory_default_spans.png[`GET /inventory/systems/{hostname}/properties` trace,align="center"]
+5. Find and click the trace ID for the request named `GET /inventory/systems/{hostname}`. You see the following result in the **Trace** view:
 
 +
-The trace contains three spans, one for the initial request to the `inventory` endpoint, one client span from the `inventory` service making outbound call to the `system` service, and one server span from the `system` service handling that request. Under **Service & Operation**, you can view these spans and click each one to inspect details such as when the request was received and when the response was sent, along with metadata like HTTP method, status code, and endpoint path.
-
-6. Expand the **Node graph** to see the relationship of spans between the `inventory` and `system` microservices.
+image::inventory_systems_localhost_trace.png[`GET /inventory/systems/{hostname}` trace,align="center"]
 
 +
-image::inventory_node_graph.png[`GET /inventory/systems/{hostname}/properties` node graph,align="center"]
-
-+
-This graph helps visualize the request flow across services and identify any latency hotspots or bottlenecks.
+The trace contains three spans, two from the `inventory` service and one from the `system` service.
 
 {empty} +
 
-**View logs with Loki:**
+**Viewing logs with Loki:**
 
-You can click a **Log** icon beside a span to see the logs associated with it.
+1. Open the **Drilldown -> Logs** view from the left menu. This view displays an overview of time-series log counts and log entries for all services that send logs to Loki.
 
-You can also follow the following steps to explore the application and runtimes logs from both services:
-
-1. Open the **Drilldown -> Logs** view from the left menu. This view displays an overview of time series and log visualizations for all services that send logs to Loki.
-
-2. Click the **Show logs** button for a specific service to display its logs.
-
-3. Expand a log entry to view the full message along with its trace context.
+2. Review the log entries displayed for each service. You can click *Show logs* for a service to display its log entries inline and expand a log entry to view the full trace context.
 
 +
-image::log_logger_ok.png[Example of log detail,align="center"]
+image::log_logger_info.png[Example of log details,align="center"]
+
 
 {empty} +
 
-**View metrics with Prometheus:**
+**Viewing metrics with Prometheus:**
 
 1. Open the **Drilldown -> Metrics** view from the left menu. This view shows a query-less experience for browsing the available metrics that are collected by Prometheus.
 
@@ -253,7 +242,7 @@ mvnw.cmd -pl inventory liberty:stop
 // =================================================================================================
 == Enabling automatic telemetry collection
 
-MicroProfile Telemetry can automatically collect telemetry data without requiring changes to your application code. To collect and export telemetry data, you need to enable the MicroProfile Telemetry feature and configure the required OpenTelemetry properties in your application.
+MicroProfile Telemetry automatically collects telemetry data without requiring changes to your application code. To collect and export telemetry data, you need to enable the MicroProfile Telemetry feature and configure the required OpenTelemetry properties in your application.
 
 Navigate to the `start` directory to begin.
 
@@ -323,7 +312,12 @@ The [hotspot=otel file=3]`otel.*` properties are configured in the [hotspot file
 
 For more information about these and other Telemetry properties, see the https://openliberty.io/docs/latest/reference/microprofile-config-properties.html#telemetry[MicroProfile Config properties for MicroProfile Telemetry^] documentation.
 
+// =================================================================================================
+// Viewing the default telemetry data
+// =================================================================================================
 == Viewing the default telemetry data
+
+By default, OpenTelemetry generates trace spans for incoming HTTP requests to JAX-RS and REST endpoints, collects metrics such as HTTP request durations and JVM performance, and captures message logs written at the `INFO` level or higher.
 
 Now, start the services to begin collecting telemetry data.
 
@@ -393,29 +387,88 @@ After you see the following message, your Liberty instance is ready in dev mode:
 
 Dev mode holds your command-line session to listen for file changes. Open another command-line session to continue, or open the project in your editor.
 
-When both services are running, visit the http://localhost:9081/inventory/systems/localhost/properties URL to trigger automatic telemetry collection for the request. By default, OpenTelemetry generates trace spans for incoming HTTP requests to JAX-RS and REST endpoints, collects runtime and application metrics such as HTTP request durations and JVM performance, and captures message logs written by the application or Liberty runtime at the `INFO` level or higher.
+When both services are running, visit the http://localhost:9081/inventory/systems/localhost URL to register the `localhost` system in the inventory. This action generates default telemetry data for the request.
 
-To explore the automatic telemetry data, open the Grafana dashboard at the http://localhost:3000 URL.
+Because the `inventory` service makes periodic background calls every 15 seconds to refresh system load information for all tracked systems, telemetry data will be continuously generated for you to monitor.
 
-View the traces that were automatically created from your request in the Grafana dashboard. From the left menu, open the **Explore** view and select **Tempo** as the data source. For **Query type**, choose `Search`, then click **Run query**. You see that the first result is the trace for the `GET /inventory/systems/{hostname}/properties` request from the `inventory` service. Click the trace ID to open the trace details and verify that there are two spans from the `inventory` service and one span from the `system` service.
+Open the Grafana dashboard at the http://localhost:3000 URL.
 
-image::inventory_default_spans.png[Inventory default spans,align="center"]
+**Viewing request traces:**
+
+View the trace that was automatically created from your request:
+
+1. Open the **Explore** view from the left menu.
+
+2. Select **Tempo** as the data source.
+
+3. Set **Query type** to `Search`.
+
+4. Click the blue **Run query** button in the upper-right corner to list recent traces.
+
+5. Find and click the trace ID for the request named `GET /inventory/systems/{hostname}`. You see the following result in the **Trace** view:
+
++
+image::inventory_systems_localhost_trace.png[`GET /inventory/systems/{hostname}` trace,align="center"]
+
++
+Verify that the trace contains three spans, one for the initial request to the `inventory` service, one client span from the `inventory` service making an outbound call to the `system` service, and one server span from the `system` service handling that request.
+
+6. In the **Service & Operation** table, click each span to view detailed metadata. This includes when the request was received and when the response was sent, as well as information such as the HTTP method, status code, and endpoint path.
+
++
+image::inventory_systems_localhost_spans.png[`GET /inventory/systems/{hostname}` spans,align="center"]
+
+7. Expand the **Node graph** section to see the relationship between the spans and how the `inventory` and `system` microservices interact. This graph helps visualize the request flow across services and identify any latency hotspots or bottlenecks.
+
++
+image::inventory_systems_localhost_node_graph.png[`GET /inventory/systems/{hostname}` node graph,align="center"]
+
 {empty} +
 
-View the messages logs to see timestamped events from the server startup in the dashboard. Navigate to the **Drilldown -> Logs** from the menu. You can click **Show logs** from each service to see the detailed context for each log.
+**Viewing trace logs:**
 
-image::logs_server_startup.png[Server startup logs,align="center"]
+View logs associated with a specific span:
+
+1. From the **Trace** view you opened in the previous step, click the **Log icon** on the right side of the span entry in the **Service & Operation** table.
+
+2. Alternatively, click the blue **Logs for this span** button in the span detail section.
+
+**Viewing server logs:**
+
+Monitor timestamped logs generated by the services since the server startup:
+
+1. Navigate to **Drilldown -> Logs** from the menu. his view displays a time-series overview of log counts and log entries for all services.
+
++
+image::logs_overview.png[Logs overview,align="center"]
+
+2. Click *Show logs* for a service to display its log entries inline.
+
 {empty} +
 
-View an overview of the JVM metrics to get insights into class count, CPU usage, and heap memory utilization. Open the **Dashboards** view from menu and select the **JVM Overview (OpenTelemetry)** dashboard.
+**Viewing JVM metrics:**
 
+Get insights into class count, CPU usage, and heap memory utilization:
+
+1. Open the **Dashboards** view from the menu.
+
+2. Select the **JVM Overview (OpenTelemetry)** dashboard.
+
++
 image::jvm_overview.png[JVM Overview,align="center"]
+
 {empty} +
 
-Open the **RED Metrics (classic histogram)** dashboard to get an overview of the HTTP request performance.
+**Viewing HTTP metrics:**
 
+Get an overview of the HTTP request performance:
+
+1. Navigate back to the **Dashboards** view from the menu. 
+
+2. Open the **RED Metrics (classic histogram)** dashboard.
+
++
 image::red_metrics.png[RED Metrics,align="center"]
-{empty} +
 
 // =================================================================================================
 // Enhancing application logs
@@ -433,36 +486,36 @@ SystemClient.java
 include::start/inventory/src/main/java/io/openliberty/guides/inventory/client/SystemClient.java[]
 ----
 
-Currently, the [hotspot file=0]`SystemClient` class logs messages by using [hotspot=out3 hotspot=out4 hotspot=out8 file=0]`System.out` and [hotspot=out1 hotspot=out2 hotspot=out5 hotspot=out6 hotspot=out7 file=0]`System.err`.
+Currently, the [hotspot file=0]`SystemClient` class logs messages by using [hotspot=out3 file=0]`System.out` and [hotspot=out1 hotspot=out2 hotspot=out4 hotspot=out5 hotspot=out6 hotspot=out7 file=0]`System.err`.
 
-To observe a basic standard output log, open your browser and navigate to the http://localhost:9081/inventory/systems/localhost/properties URL. Then, open the Grafana dashboard at the http://localhost:3000 URL.
+To observe a basic standard output log, visit the http://localhost:9081/inventory/systems/localhost URL to trigger a successful request. Then, open the Grafana dashboard at the http://localhost:3000 URL.
 
-In the **Explore** view, select the **Loki** data source and set a filter for `service_name = inventory`. Click the **Run query** button to run the search.
+In the **Explore** view, select the **Loki** data source. Set a filter for `service_name = inventory` and click the blue **Run query** button.
 
 In the **Logs** section, select the **Logs** view from the upper-right corner to show the results in logs visualization. This enables log expansion.
 
 image::logs_view.png[Logs view,align="center"]
 
-Look for the log entry that says `Received response with status: 200`. When expanded, you see that both the `detected_level` and the `io_openliberty_module` fields are set to `SystemOut`.
+Locate the log entry `Received response with status: 200`. When expanded, you see that both the `detected_level` and the `io_openliberty_module` fields are set to `SystemOut`.
 
-image::log_system_out_println_ok.png[Log by using the System.out.println method,align="center"]
+image::log_system_out.png[Example log entry from `System.out` standard output stream,align="center"]
 {empty} +
 
-Now, access the http://localhost:9081/inventory/systems/unknown URL to simulate an exception. This request targets a nonexistent host and triggers a `RuntimeException`.
+Now, access the http://localhost:9081/inventory/systems/unknown URL to simulate a request to a nonexistent hostwhich triggers a `RuntimeException`.
 
 Rerun the same query in Grafana. In the **Logs** section, expand the log entry:
 
 [role="no_copy"]
 ----
-Unexpected exception while processing system service request: RESTEASY004655: Unable to invoke request: java.net.UnknownHostException: unknown: nodename nor servname provided, or not known
+Runtime exception while invoking system service: RESTEASY004655: Unable to invoke request: java.net.UnknownHostException: unknown: nodename nor servname provided, or not known
 ----
 
-This log entry shows `SystemErr` as the value for both the `detected_level` and `io_openliberty_module` fields, with the stack trace included directly in the log message.
+This log entry shows `SystemErr` as the value for both the `detected_level` and `io_openliberty_module` fields. The error stack trace is included directly in the log message, and no information about the exception type is provided.
 
-image::log_system_out_println_exception.png[Log by using the System.out.println method,align="center"]
+image::log_system_err.png[Example log entry from `System.err` standard error stream,align="center"]
 {empty} +
 
-Although both `System.out` and `System.err` logs are collected, they do not provide structured metadata. You cannot identify logs by severity, separate stack traces, or correlate logs with contextual information such as the originating class or error type.
+These examples show that while `System.out` and `System.err` logs are collected, they do not provide the structured metadata needed to filter by severity, separate stack traces, or correlate logs with originating classes or error types.
 
 To enable structured logging, update your application to use the `java.util.logging` API.
 
@@ -482,28 +535,57 @@ The updated [hotspot file=1]`SystemClient` class uses the [hotspot=getLogger fil
 
 Because you are running the services in dev mode, the changes that you made are automatically picked up.
 
-Return to the http://localhost:9081/inventory/systems/localhost/properties URL and rerun the Loki query in Grafana. This time, the log is structured. The `detected_level` is set to `INFO`, and the `io_openliberty_module` field contains the logger name, making it easier to trace the origin of the log.
+Return to the http://localhost:9081/inventory/systems/localhost URL to trigger a successful request. Rerun the Loki query in Grafana and locate the log entry `Received response with status: 200`. Expand the entry and verify that the `detected_level` is set to `INFO` and the `io_openliberty_module` field contains the logger name, `io.openliberty.guides.inventory.client.SystemClient`, which helps trace the origin of the log.
 
-image::log_logger_ok.png[Log by using the java.util.logging API,align="center"]
+image::log_logger_info.png[Example log entry from java.util.logging API at INFO level,align="center"]
 {empty} +
 
-Access the http://localhost:9081/inventory/systems/unknown/properties URL again to simulate an exception, then rerun the Loki query in Grafana. The resulting log shows `WARNING` in the `detected_level` field, includes a structured stack trace in the `exception_stacktrace` field, and identifies the exception type as `jakarta.ws.rs.ProcessingException` in the `exception_type` field.
+Access the http://localhost:9081/inventory/systems/unknown URL to trigger an exception. Rerun the Loki query in Grafana and locate the log entry `Runtime exception while invoking system service`. Expand it and verify that the `detected_level` field is set to `WARNING`. The `exception_stacktrace` field displays a structured stack trace, and the `exception_type` field identifies the exception as `jakarta.ws.rs.ProcessingException`.
 
-image::log_logger_exception.png[Log by using the java.util.logging API,align="center"]
+image::log_logger_warning.png[Example log entry from java.util.logging API at WARNING level,align="center"]
 {empty} +
 
 By default, OpenTelemetry collects only message logs. For details on how to include other sources, see https://openliberty.io/docs/latest/reference/feature/mpTelemetry-2.0.html#logs[Collect logs from a specified source^].
 
 // =================================================================================================
-// Testing the application 
+// Testing the application
 // =================================================================================================
-== Testing the application 
+== Testing the application
 
 Manually verify the telemetry signals by inspecting them in the Grafana dashboard. You can also run the included tests to check the basic functionality of the services. If any of the tests fail, you might have introduced a bug into the code.
 
 === Running the tests
 
 Because you started Open Liberty in dev mode, you can run the tests for the `system` and `inventory` services by pressing the `enter/return` key from the command-line sessions where you started the services.
+
+If the tests pass, you see an output for each service similar to the following:
+
+[role="no_copy"]
+----
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running it.io.openliberty.guides.system.SystemEndpointIT
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.445 s -- in it.io.openliberty.guides.system.SystemEndpointIT
+
+Results:
+
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+----
+
+[role="no_copy"]
+----
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running it.io.openliberty.guides.inventory.InventoryEndpointIT
+...
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.855 s -- in it.io.openliberty.guides.inventory.InventoryEndpointIT
+
+Results:
+
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+----
 
 When you are done checking out the services, exit dev mode by pressing `CTRL+C` in the shell sessions where you ran the `system` and `inventory` services.
 
