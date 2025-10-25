@@ -46,7 +46,7 @@ public class SystemEndpointIT {
         assertTrue(jsonObj.containsKey("memoryUsage"),
             "Response should contain memoryUsage");
 
-        assertNotNull(jsonObj.getString("time"),"time is null");
+        assertNotNull(jsonObj.getString("time"), "time is null");
         assertNotNull(jsonObj.getJsonNumber("cpuLoad"), "cpuLoad is null");
         assertNotNull(jsonObj.getJsonNumber("memoryUsage"), "memoryUsage is null");
 
