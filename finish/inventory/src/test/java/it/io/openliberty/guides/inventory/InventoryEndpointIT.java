@@ -86,15 +86,7 @@ public class InventoryEndpointIT {
         Response localhostResponse = this.getResponse(url + "/localhost");
         this.assertResponse(url + "/localhost", localhostResponse);
 
-        Response response = this.getResponse(url);
-        this.assertResponse(url, response);
-
-        JsonObject obj = response.readEntity(JsonObject.class);
-
-        int expected = 1;
-        int actual = obj.getInt("total");
-        assertEquals(expected, actual,
-                "The inventory should have one entry for localhost");
+        JsonObject obj = getInventoryJson(1);
 
         JsonObject localhostObj = obj.getJsonArray("systems").getJsonObject(0);
         assertTrue(localhostObj.get("hostname").toString().contains("localhost"),
@@ -110,7 +102,7 @@ public class InventoryEndpointIT {
             "time should exist in localhost systemLoad");
 
         localhostResponse.close();
-        response.close();
+        // response.close();
     }
 
     @Test
@@ -126,18 +118,9 @@ public class InventoryEndpointIT {
         assertTrue(stringObj.contains("error"),
                 "badhostname is not a valid host but it didn't raise an error");
 
-        Response response = this.getResponse(url);
-        this.assertResponse(url, response);
-
-        JsonObject obj = response.readEntity(JsonObject.class);
-
-        int expected = 1;
-        int actual = obj.getInt("total");
-        assertEquals(expected, actual,
-                "The inventory should contain only one host.");
-
-        response.close();
         badResponse.close();
+
+        getInventoryJson(1);
    }
 
     private Response getResponse(String url) {
@@ -147,5 +130,18 @@ public class InventoryEndpointIT {
     private void assertResponse(String url, Response response) {
         assertEquals(200, response.getStatus(),
                 "Incorrect response code from " + url);
+    }
+
+    private JsonObject getInventoryJson(int expectedCount) {
+        Response response = this.getResponse(url);
+        this.assertResponse(url, response);
+
+        JsonObject obj = response.readEntity(JsonObject.class);
+        int actual = obj.getInt("total");
+        assertEquals(expectedCount, actual,
+            "The inventory should contain " + expectedCount + " host(s).");
+
+        response.close();
+        return obj;
     }
 }
