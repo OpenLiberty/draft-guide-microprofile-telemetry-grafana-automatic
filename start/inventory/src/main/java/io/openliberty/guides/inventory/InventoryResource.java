@@ -11,10 +11,9 @@
 // end::copyright[]
 package io.openliberty.guides.inventory;
 
-import java.util.Map;
-
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -38,7 +37,7 @@ public class InventoryResource {
     @Path("/{hostname}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSystemLoadForHost(@PathParam("hostname") String hostname) {
-        Map<String, Object> systemLoad = manager.getSystemLoad(hostname);
+        JsonObject systemLoad = manager.getSystemLoad(hostname);
         if (systemLoad == null) {
             return Response.status(Response.Status.NOT_FOUND)
                         .entity("{ \"error\" : \"Unknown hostname or the system "

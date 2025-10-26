@@ -38,19 +38,17 @@ public class InventoryEndpointIT {
 
     @BeforeAll
     public static void oneTimeSetup() throws ServletException {
-
         String port = System.getProperty("inv.http.port");
         url = "http://localhost:" + port + "/inventory/systems";
 
-        Response clearResponse = ClientBuilder.newClient()
-                .target(url)
-                .request()
-                .delete();
+        try (Client c = ClientBuilder.newClient();
+            Response clearResponse = c.target(url).request().delete()) {
 
-        if (clearResponse.getStatus() != Response.Status.OK.getStatusCode()
-            && clearResponse.getStatus()
-            != Response.Status.NOT_MODIFIED.getStatusCode()) {
-            throw new ServletException("Could not clear inventory manager.");
+            int status = clearResponse.getStatus();
+            if (status != Response.Status.OK.getStatusCode()
+                && status != Response.Status.NOT_MODIFIED.getStatusCode()) {
+                throw new ServletException("Could not clear inventory manager.");
+            }
         }
     }
 
@@ -102,7 +100,6 @@ public class InventoryEndpointIT {
             "time should exist in localhost systemLoad");
 
         localhostResponse.close();
-        // response.close();
     }
 
     @Test

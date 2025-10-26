@@ -11,14 +11,17 @@
 // end::copyright[]
 package io.openliberty.guides.inventory;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.json.JsonObject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
 import io.openliberty.guides.inventory.client.SystemClient;
 import io.openliberty.guides.inventory.model.InventoryList;
@@ -33,18 +36,38 @@ public class InventoryManager {
 
     private Map<String, SystemData> systems = new ConcurrentHashMap<>();
 
-    public Map<String, Object> getSystemLoad(String hostname) {
-        try (SystemClient client = new SystemClient()) {
-            client.init(hostname, SYSTEM_PORT);
-            return client.getSystemLoad();
+    public JsonObject getSystemLoad(String hostname) {
+        String URIString = "http://" + hostname + ":" + SYSTEM_PORT + "/system";
+        URI URL = null;
+        try {
+            URL = URI.create(URIString);
+            SystemClient client = RestClientBuilder.newBuilder()
+                                                .baseUri(URL)
+                                                .build(SystemClient.class);
+            JsonObject obj = client.getSystemLoad();
+            // tag::out1[]
+            System.out.println("Retrieved system load from " + hostname);
+            // end::out1[]
+            return obj;
+        } catch (RuntimeException e) {
+            // tag::out2[]
+            System.err.println(
+                "Runtime exception while invoking system service: " + e);
+            // end::out2[]
+        } catch (Exception e) {
+            // tag::out3[]
+            System.err.println(
+                "Unexpected exception while processing system service request: " + e);
+            // end::out3[]
         }
+        return null;
     }
 
     public InventoryList list() {
         return new InventoryList(new ArrayList<>(systems.values()));
     }
 
-    public void set(String host, Map<String, Object> systemLoad) {
+    public void set(String host, JsonObject systemLoad) {
         SystemData system = systems.get(host);
         if (system != null) {
             system.setSystemLoad(systemLoad);
@@ -56,7 +79,7 @@ public class InventoryManager {
     public void refreshSystemsLoads() {
         for (SystemData system : systems.values()) {
             String hostname = system.getHostname();
-            Map<String, Object> systemLoad = getSystemLoad(hostname);
+            JsonObject systemLoad = getSystemLoad(hostname);
             system.setSystemLoad(systemLoad);
         }
     }

@@ -11,14 +11,14 @@
 // end::copyright[]
 package io.openliberty.guides.inventory.model;
 
-import java.util.Map;
+import jakarta.json.JsonObject;
 
 public class SystemData {
 
     private final String hostname;
-    private Map<String, Object> systemLoad;
+    private JsonObject systemLoad;
 
-    public SystemData(String hostname, Map<String, Object> systemLoad) {
+    public SystemData(String hostname, JsonObject systemLoad) {
         this.hostname = hostname;
         this.systemLoad = systemLoad;
     }
@@ -27,11 +27,11 @@ public class SystemData {
         return hostname;
     }
 
-    public Map<String, Object> getSystemLoad() {
+    public JsonObject getSystemLoad() {
         return systemLoad;
     }
 
-    public void setSystemLoad(Map<String, Object> systemLoad) {
+    public void setSystemLoad(JsonObject systemLoad) {
         this.systemLoad = systemLoad;
     }
 }
