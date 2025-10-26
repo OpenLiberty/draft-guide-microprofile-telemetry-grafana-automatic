@@ -37,12 +37,12 @@ public class InventoryManager {
     private Map<String, SystemData> systems = new ConcurrentHashMap<>();
 
     public JsonObject getSystemLoad(String hostname) {
-        String URIString = "http://" + hostname + ":" + SYSTEM_PORT + "/system";
-        URI URL = null;
+        String uriString = "http://" + hostname + ":" + SYSTEM_PORT + "/system";
+        URI uri = null;
         try {
-            URL = URI.create(URIString);
+            uri = URI.create(uriString);
             SystemClient client = RestClientBuilder.newBuilder()
-                                                .baseUri(URL)
+                                                .baseUri(uri)
                                                 .build(SystemClient.class);
             JsonObject obj = client.getSystemLoad();
             // tag::out1[]
@@ -84,7 +84,7 @@ public class InventoryManager {
         }
     }
 
-    int clear() {
+    public int clear() {
         int systemsClearedCount = systems.size();
         systems.clear();
         return systemsClearedCount;
