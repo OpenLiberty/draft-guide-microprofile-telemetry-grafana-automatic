@@ -50,7 +50,7 @@ In this guide, you'll use the https://github.com/grafana/docker-otel-lgtm/?tab=r
     
 * https://github.com/grafana/grafana[Grafana^]: a dashboard tool that brings together logs, metrics, and traces for visualization and analysis
 
-The diagram shows a distributed environment with multiple services. For simplicity, this guide configures only the `system` and `inventory` services. The services use Jakarta RESTful Web Services (JAX-RS) and MicroProfile REST Client to handle inbound and outbound requests. You’ll learn how to enable automatic collection of traces, metrics, and logs from microservices by using MicroProfile Telemetry, and visualize them in Grafana.
+The diagram shows a distributed environment with multiple services. For simplicity, this guide configures only the `system` and `inventory` services. You’ll learn how to enable automatic collection of traces, metrics, and logs from microservices by using MicroProfile Telemetry, and visualize them in Grafana.
 
 image::architecture_diagram.png[Application architecture,align="center"]
 
@@ -317,7 +317,7 @@ For more information about these and other Telemetry properties, see the https:/
 // =================================================================================================
 == Viewing the default telemetry data
 
-OpenTelemetry automatically generates trace spans for incoming HTTP requests to Jakarta RESTful Web Services endpoints and outgoing requests from MicroProfile REST Clients. It also collects metrics such as HTTP request durations and JVM performance, and captures logs from both the server and the application.
+OpenTelemetry automatically generates trace spans for incoming HTTP requests to Jakarta RESTful Web Services (JAX-RS) endpoints and outgoing requests from MicroProfile REST Clients. It also collects metrics such as HTTP request durations and JVM performance, and captures logs from both the server and the application.
 
 Start the services to begin collecting telemetry data.
 
@@ -387,11 +387,9 @@ When you see the following message, your Liberty instances are ready in dev mode
 
 Dev mode holds your command-line session to listen for file changes. Open another command-line session to continue, or open the project in your editor.
 
-Telemetry such as Liberty startup logs and JVM metrics is generated on startup. To see request-scoped telemetry, interact with the services.
+Telemetry such as Liberty startup logs and JVM metrics is generated when the servers start. To see request-scoped telemetry, interact with the services. The `system` service provides system load information, while the `inventory` service retrieves and stores this data through a MicroProfile REST Client. Both services expose REST endpoints built with Jakarta RESTful Web Services.
 
-The `system` microservice simulates a service that returns system load information for a host. You can access the `localhost` system load information at the http://localhost:9080/system/systemLoad URL.
-
-The `inventory` microservice requests system load information from the `system` service and stores it. To fetch and store the `localhost` system information, visit the http://localhost:9081/inventory/systems/localhost URL.
+Visit the http://localhost:9081/inventory/systems/localhost URL to fetch and store the `localhost` system information, which triggers the `inventory` service to call the `system` service at `\http://localhost:9080/system/systemLoad`.
 
 Because the `inventory` service makes periodic background requests every 15 seconds to refresh system load information for all stored systems, telemetry data is continuously generated for you to monitor.
 

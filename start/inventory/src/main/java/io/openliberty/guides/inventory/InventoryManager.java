@@ -38,12 +38,10 @@ public class InventoryManager {
 
     public JsonObject getSystemLoad(String hostname) {
         String uriString = "http://" + hostname + ":" + SYSTEM_PORT + "/system";
-        URI uri = null;
-        try {
-            uri = URI.create(uriString);
-            SystemClient client = RestClientBuilder.newBuilder()
-                                                .baseUri(uri)
-                                                .build(SystemClient.class);
+        try (SystemClient client = RestClientBuilder.newBuilder()
+                .baseUri(URI.create(uriString))
+                .build(SystemClient.class)) {
+
             JsonObject obj = client.getSystemLoad();
             // tag::out1[]
             System.out.println("Retrieved system load from " + hostname);
