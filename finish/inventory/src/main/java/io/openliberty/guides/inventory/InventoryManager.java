@@ -62,8 +62,8 @@ public class InventoryManager {
     }
 
     int clear() {
-        int propertiesClearedCount = systems.size();
+        int systemsClearedCount = systems.size();
         systems.clear();
-        return propertiesClearedCount;
+        return systemsClearedCount;
     }
 }
