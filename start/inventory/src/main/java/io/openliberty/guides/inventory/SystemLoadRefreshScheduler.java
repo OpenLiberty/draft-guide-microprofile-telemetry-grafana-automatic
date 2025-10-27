@@ -18,13 +18,13 @@ import jakarta.inject.Inject;
 
 @Singleton
 @Startup
-public class HealthCheckScheduler {
+public class SystemLoadRefreshScheduler {
 
     @Inject
     private InventoryManager inventoryManager;
 
-    @Schedule(hour = "*", minute = "*", second = "*/30", persistent = false)
-    public void performHealthChecks() {
-        inventoryManager.refreshAllSystemsHealth();
+    @Schedule(hour = "*", minute = "*", second = "*/15", persistent = false)
+    public void refreshSystemLoads() {
+        inventoryManager.refreshSystemsLoads();
     }
 }
