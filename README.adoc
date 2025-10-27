@@ -17,7 +17,7 @@
 :page-tags: ['microprofile']
 :page-permalink: /guides/{projectid}
 :common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/prod
-:page-related-guides: [ 'microprofile-telemetry-grafana-custom', 'microprofile-telemetry-jaeger', 'microprofile-metrics', 'rest-intro', 'microprofile-rest-client' ]
+:page-related-guides: [ 'microprofile-telemetry-jaeger', 'microprofile-metrics', 'rest-intro', 'microprofile-rest-client' ]
 :imagesdir: /img/guide/{projectid}
 :page-seo-title: Collecting automatic traces, metrics, and logs in Java microservices with MicroProfile Telemetry and Grafana
 :page-seo-description: A getting started tutorial on how to enable the collection of traces, metrics, and logs from Java microservices by using MicroProfile Telemetry in Open Liberty and visualizing them with the Grafana stack built on the grafana/otel-lgtm Docker image.
