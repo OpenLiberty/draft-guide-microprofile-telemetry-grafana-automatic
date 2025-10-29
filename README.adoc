@@ -433,7 +433,7 @@ This guide demonstrates automatic tracing using MicroProfile REST Client on the 
 
 View logs associated with a specific span:
 
-1. From the **Trace** view you opened in the previous step, click the image:log_icon.png[log icon, 18, 18] **Log icon** on the right side of the span entry in the **Service & Operation** table.
+1. From the **Trace** view you opened in the previous step, click the image:log_icon.png[log icon] **Log icon** on the right side of the span entry in the **Service & Operation** table.
 
 2. Alternatively, click the blue **Logs for this span** button in the span detail section.
 
