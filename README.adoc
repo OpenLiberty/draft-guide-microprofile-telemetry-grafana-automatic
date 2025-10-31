@@ -526,7 +526,26 @@ include::start/inventory/src/main/java/io/openliberty/guides/inventory/Inventory
 
 The current [hotspot file=0]`InventoryManager` class logs messages by writing to [hotspot=out1 file=0]`System.out` and [hotspot=out2 hotspot=out3 file=0]`System.err`.
 
-To observe a basic standard output log, visit the http://localhost:9081/inventory/systems/localhost URL to trigger a successful request. Then, open the Grafana dashboard at the http://localhost:3000 URL.
+ifndef::cloud-hosted[]
+To observe a basic standard output log, visit the http://localhost:9081/inventory/systems/localhost URL to trigger a successful request. 
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+To observe a basic standard output log, run the following command to trigger a successful request:
+```bash
+curl -s http://localhost:9081/inventory/systems/localhost
+```
+endif::[]
+
+ifndef::cloud-hosted[]
+Then, open the Grafana dashboard at the http://localhost:3000 URL.
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Then, click the following button to open the Grafana dashboard.
+
+::startApplication{port="3000" display="external" name="Grafana dashboard" route="/"}
+endif::[]
 
 In the **Explore** view, select the **Loki** data source. Set a filter for `service_name = inventory` and click the blue **Run query** button. The results appear in the **Logs** view by default. If it is not already selected, switch to **Logs** at the upper right of the **Logs** section to enable log expansion.
 
@@ -537,7 +556,17 @@ Locate the log entry `Retrieved system load from localhost`. When you expand it,
 image::log_system_out.png[Example log entry from `System.out` standard output stream,align="center"]
 {empty} +
 
-Next, observe a standard error log by visiting the http://localhost:9081/inventory/systems/unknown URL. This simulates a request to a nonexistent host and triggers a `RuntimeException`.
+ifndef::cloud-hosted[]
+Next, observe a standard error log by visiting the http://localhost:9081/inventory/systems/unknown URL.
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Next, observe a standard error log by running the following command:
+```bash
+curl -s http://localhost:9081/inventory/systems/unknown
+```
+endif::[]
+This simulates a request to a nonexistent host and triggers a `RuntimeException`.
 
 Rerun the same query in Grafana. In the **Logs** section, locate and expand the following log entry:
 
@@ -571,12 +600,34 @@ The updated [hotspot file=1]`InventoryManager` class now uses the [hotspot=getLo
 
 Because the services are running in dev mode, your changes are automatically picked up.
 
-Return to the http://localhost:9081/inventory/systems/localhost URL to trigger a successful request. Rerun the Loki query in Grafana and locate the log entry `Retrieved system load from localhost`. Expand the entry and verify that the `detected_level` is set to `INFO` and the `io_openliberty_module` field contains the logger name, `io.openliberty.guides.inventory.client.InventoryManager`, which helps trace the origin of the log.
+ifndef::cloud-hosted[]
+Return to the http://localhost:9081/inventory/systems/localhost URL to trigger a successful request. 
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Run the following command to trigger a successful request:
+```bash
+curl -s http://localhost:9081/inventory/systems/localhost
+```
+endif::[]
+
+Rerun the Loki query in Grafana and locate the log entry `Retrieved system load from localhost`. Expand the entry and verify that the `detected_level` is set to `INFO` and the `io_openliberty_module` field contains the logger name, `io.openliberty.guides.inventory.client.InventoryManager`, which helps trace the origin of the log.
 
 image::log_logger_info.png[Example log entry from java.util.logging API at INFO level,align="center"]
 {empty} +
 
-Next, access the http://localhost:9081/inventory/systems/unknown URL to trigger an exception. Rerun the Loki query and locate the log entry `Runtime exception while invoking system service`. When expanded, the entry shows that the `detected_level` field is set to `WARNING`. The `exception_stacktrace` field contains a structured stack trace, and the `exception_type` field identifies the exception as `jakarta.ws.rs.ProcessingException`.
+ifndef::cloud-hosted[]
+Next, access the http://localhost:9081/inventory/systems/unknown URL to trigger an exception. 
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Next, run the following command to trigger an exception:
+```bash
+curl -s http://localhost:9081/inventory/systems/unknown
+```
+endif::[]
+
+Rerun the Loki query and locate the log entry `Runtime exception while invoking system service`. When expanded, the entry shows that the `detected_level` field is set to `WARNING`. The `exception_stacktrace` field contains a structured stack trace, and the `exception_type` field identifies the exception as `jakarta.ws.rs.ProcessingException`.
 
 image::log_logger_warning.png[Example log entry from java.util.logging API at WARNING level,align="center"]
 {empty} +
