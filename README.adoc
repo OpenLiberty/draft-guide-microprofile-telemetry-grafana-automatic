@@ -19,7 +19,7 @@
 :common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/prod
 :page-related-guides: [ 'microprofile-telemetry-grafana-custom', 'microprofile-telemetry-jaeger', 'microprofile-metrics', 'rest-intro', 'microprofile-rest-client' ]
 :imagesdir: /img/guide/{projectid}
-:page-seo-title: Collecting automatic traces, metrics, and logs in Java microservices with MicroProfile Telemetry and Grafana
+:page-seo-title: Collecting automatic traces, metrics, and logs in Java microservices using MicroProfile Telemetry and the Grafana stack
 :page-seo-description: A getting started tutorial on how to enable the collection of traces, metrics, and logs from Java microservices by using MicroProfile Telemetry in Open Liberty and visualizing them with the Grafana stack built on the grafana/otel-lgtm Docker image.
 :source-highlighter: prettify
 = Enabling observability in microservices with traces, metrics, and logs using OpenTelemetry and Grafana
@@ -50,9 +50,13 @@ In this guide, you'll use the https://github.com/grafana/docker-otel-lgtm/?tab=r
     
 * https://github.com/grafana/grafana[Grafana^]: a dashboard tool that brings together logs, metrics, and traces for visualization and analysis
 
-The diagram shows a distributed environment with multiple services. For simplicity, this guide configures only the `system` and `inventory` services. The `system` service provides system load information, while the `inventory` service retrieves and stores this data by calling the `system` service through a MicroProfile REST Client. Both services expose endpoints built with Jakarta RESTful Web Services.
+The diagram shows a distributed environment with multiple services. For simplicity, this guide configures only the `system` and `inventory` services.
 
 image::architecture_diagram.png[Application architecture,align="center"]
+
+The `system` service provides system load information, while the `inventory` service retrieves and stores this data by calling the `system` service through a MicroProfile REST Client. Both services expose endpoints built with Jakarta RESTful Web Services.
+
+In addition, the `inventory` service makes periodic background requests to the `system` service every 15 seconds to refresh system load information for all stored systems.
 
 You’ll learn how to enable automatic collection of traces, metrics, and logs from microservices by using MicroProfile Telemetry, and visualize them in Grafana.
 
@@ -159,7 +163,7 @@ After you see the following message in both command-line sessions, both of your 
 The defaultServer server is ready to run a smarter planet.
 ----
 
-Visit the http://localhost:9081/inventory/systems/localhost URL. This action triggers the `inventory` service to retrieve and store system load information for `localhost` by making a request to the `system` service at `\http://localhost:9080/system/systemLoad`.
+When both services are running, visit the http://localhost:9081/inventory/systems/localhost URL. This action triggers the `inventory` service to retrieve and store system load information for `localhost` by making a request to the `system` service at `\http://localhost:9080/system/systemLoad`.
 
 In addition, the `inventory` service makes periodic background requests to the `system` service every 15 seconds to refresh system load information for all stored systems.
 
@@ -173,7 +177,7 @@ You can view the telemetry data collected from the running services in the Grafa
 
 3. Set **Query type** to `Search`.
 
-4. Click the blue **Run query** button in the upper-right corner to list recent traces.
+4. Click the blue **Run query** button at the upper right of the **Explore** view to list recent traces.
 
 5. Find and click the trace ID for the request named `GET /inventory/systems/{hostname}`. You see the following result in the **Trace** view:
 
@@ -321,6 +325,8 @@ For more information about these and other Telemetry properties, see the https:/
 
 When you enable OpenTelemetry for Open Liberty, it automatically generates trace spans for Jakarta RESTful Web Services (JAX-RS) servers and clients, as well as for MicroProfile REST Clients. It also collects metrics such as HTTP request durations, JVM performance, and application activity, and captures logs from the server and the application.
 
+For a complete list of the default metrics that Open Liberty collects when MicroProfile Telemetry is enabled, see the https://openliberty.io/docs/latest/mptelemetry-metrics-list.html[MicroProfile Telemetry metrics reference list^].
+
 Start the services to begin collecting telemetry data.
 
 When you run Open Liberty in https://openliberty.io/docs/latest/development-mode.html[dev mode^], dev mode listens for file changes and automatically recompiles and deploys your updates whenever you save a new change. Run the following command to start the `system` service in dev mode:
@@ -391,7 +397,7 @@ Dev mode holds your command-line session to listen for file changes. Open anothe
 
 Telemetry such as Liberty startup logs and JVM metrics is generated when the servers start. To see request-scoped telemetry, interact with the services.
 
-Visit the http://localhost:9081/inventory/systems/localhost URL to fetch and store the `localhost` system information, which triggers the `inventory` service to call the `system` service at `\http://localhost:9080/system/systemLoad`.
+Visit the http://localhost:9081/inventory/systems/localhost URL to fetch and store the `localhost` system information in `inventory`, which triggers the `inventory` service to call the `system` service at `\http://localhost:9080/system/systemLoad`.
 
 Because the `inventory` service makes periodic background requests every 15 seconds to refresh system load information for all stored systems, telemetry data is continuously generated for you to monitor.
 
@@ -472,6 +478,15 @@ Get an overview of the HTTP request performance:
 
 +
 image::red_metrics.png[RED Metrics,align="center"]
+{empty} +
+
+**Viewing application metrics**
+
+View application-level metrics.
+
+1. Navigate to **Drilldown -> Metrics** from the menu.
+
+2. In the **Filters** section, set `service_name` to `inventory` or `system` to view application-specific metrics.
 
 // =================================================================================================
 // Enhancing application logs

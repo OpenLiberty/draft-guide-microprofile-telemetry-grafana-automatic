@@ -43,8 +43,16 @@ public class InventoryManager {
 
     private Map<String, SystemData> systems = new ConcurrentHashMap<>();
 
-    public JsonObject getSystemLoad(String hostname) {
-        String uriString = "http://" + hostname + ":" + SYSTEM_PORT + "/system";
+    public ArrayList<String> getHosts() {
+        return new ArrayList<>(systems.keySet());
+    }
+
+    public InventoryList list() {
+        return new InventoryList(new ArrayList<>(systems.values()));
+    }
+
+    public JsonObject getSystemLoad(String host) {
+        String uriString = "http://" + host + ":" + SYSTEM_PORT + "/system";
         try (SystemClient client = RestClientBuilder.newBuilder()
                 .baseUri(URI.create(uriString))
                 .build(SystemClient.class)) {
@@ -52,7 +60,7 @@ public class InventoryManager {
             JsonObject obj = client.getSystemLoad();
             // tag::log1[]
             LOGGER.log(Level.INFO,
-                "Retrieved system load from {0}", hostname);
+                "Retrieved system load from {0}", host);
             // end::log1[]
             return obj;
         } catch (RuntimeException e) {
@@ -69,24 +77,12 @@ public class InventoryManager {
         return null;
     }
 
-    public InventoryList list() {
-        return new InventoryList(new ArrayList<>(systems.values()));
-    }
-
     public void set(String host, JsonObject systemLoad) {
         SystemData system = systems.get(host);
         if (system != null) {
             system.setSystemLoad(systemLoad);
         } else {
             systems.put(host, new SystemData(host, systemLoad));
-        }
-    }
-
-    public void refreshSystemsLoads() {
-        for (SystemData system : systems.values()) {
-            String hostname = system.getHostname();
-            JsonObject systemLoad = getSystemLoad(hostname);
-            system.setSystemLoad(systemLoad);
         }
     }
 

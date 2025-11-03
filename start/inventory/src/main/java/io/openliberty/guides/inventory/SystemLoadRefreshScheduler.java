@@ -15,6 +15,7 @@ import jakarta.ejb.Schedule;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
+import jakarta.json.JsonObject;
 
 @Singleton
 @Startup
@@ -25,6 +26,11 @@ public class SystemLoadRefreshScheduler {
 
     @Schedule(hour = "*", minute = "*", second = "*/15", persistent = false)
     public void refreshSystemLoads() {
-        inventoryManager.refreshSystemsLoads();
+        for (String host : inventoryManager.getHosts()) {
+            JsonObject load = inventoryManager.getSystemLoad(host);
+            if (load != null) {
+                inventoryManager.set(host, load);
+            }
+        }
     }
 }
