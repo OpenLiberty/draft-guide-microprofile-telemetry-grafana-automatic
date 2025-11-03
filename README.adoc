@@ -486,7 +486,10 @@ View application-level metrics.
 
 1. Navigate to **Drilldown -> Metrics** from the menu.
 
-2. In the **Filters** section, set `service_name` to `inventory` or `system` to view application-specific metrics.
+2. In the **Filters** section, set `service_name` to `inventory` or `system` to view application-specific metrics. You see a result similar to the following:
+
++
+image::inventory_metrics.png[Inventory service metrics,align="center"]
 
 // =================================================================================================
 // Enhancing application logs
