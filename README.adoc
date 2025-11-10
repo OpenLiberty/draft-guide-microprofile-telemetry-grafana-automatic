@@ -564,7 +564,7 @@ Next, access the http://localhost:9081/inventory/systems/unknown URL to trigger 
 image::log_logger_warning.png[Example log entry from java.util.logging API at WARNING level,align="center"]
 {empty} +
 
-By default, OpenTelemetry collects only message logs. For details on how to include other sources, see https://openliberty.io/docs/latest/reference/feature/mpTelemetry-2.0.html#logs[Collect logs from a specified source^].
+By default, OpenTelemetry collects only message logs. To enable the MicroProfile Telemetry feature to collect logs from different sources in Open Liberty, set the `source` attribute of the https://openliberty.io/docs/latest/reference/config/mpTelemetry.html[mpTelemetry^] element to a comma-separated list of sources.
 
 // =================================================================================================
 // Testing the application
