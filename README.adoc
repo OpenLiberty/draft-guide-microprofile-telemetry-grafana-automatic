@@ -36,7 +36,7 @@ Learn how to enable the collection of traces, metrics, and logs from microservic
 
 In a microservices architecture, it can be difficult to understand how services interact, where latency occurs, and what causes failures. Without visibility across service boundaries, diagnosing issues and tuning performance can become slow and error-prone.
 
-Observability helps address these challenges by capturing telemetry data such as logs, metrics, and traces. https://opentelemetry.io/[OpenTelemetry^] is an open source framework that provides APIs, SDKs, and tools for generating and managing this data. MicroProfile Telemetry adopts OpenTelemetry to enable both automatic and manual instrumentation in MicroProfile applications. Traces and metrics, along with runtime and application logs, can be exported in a standardized format through an OpenTelemetry Collector to any compatible backend.
+Observability helps address these challenges by capturing telemetry data such as logs, metrics, and traces. https://opentelemetry.io/[OpenTelemetry^] is an open source framework that provides APIs, SDKs, and tools for generating and managing this data. MicroProfile Telemetry uses OpenTelemetry to enable both automatic and manual instrumentation in MicroProfile applications. Traces and metrics, along with runtime and application logs, can be exported in a standardized format through an OpenTelemetry Collector to any compatible backend.
 
 In this guide, you'll use the https://github.com/grafana/docker-otel-lgtm/?tab=readme-ov-file#docker-otel-lgtm[Grafana Docker OpenTelemetry LGTM^] image (`grafana/otel-lgtm`), an open source Docker image that provides a preconfigured observability backend for OpenTelemetry, based on the https://grafana.com/about/grafana-stack/[Grafana stack^]. This setup includes:
 
@@ -296,7 +296,7 @@ inventory/bootstrap.properties
 include::finish/inventory/src/main/liberty/config/bootstrap.properties[]
 ----
 
-Setting the [hotspot=disabled file=2]`otel.sdk.disabled` property to `false` property in the https://openliberty.io/docs/latest/reference/bootstrap-properties.html[bootstrap properties^] file enables telemetry collection at the runtime level. This allows both runtime and application telemetry to be collected. If you instead configure this property at the application level, runtime telemetry will not be included. For more information, refer to the https://openliberty.io/docs/latest/microprofile-telemetry.html#global[MicroProfile Telemetry configuration documentation^].
+Setting the [hotspot=disabled file=2]`otel.sdk.disabled` property to `false` in the https://openliberty.io/docs/latest/reference/bootstrap-properties.html[bootstrap properties^] file enables telemetry collection at the runtime level. This allows both runtime and application telemetry to be collected. If you instead configure this property at the application level, runtime telemetry will not be included. For more information, refer to the https://openliberty.io/docs/latest/microprofile-telemetry.html#global[MicroProfile Telemetry configuration documentation^].
 
 The [hotspot=service file=2]`otel.service.name` property sets the service name to `inventory`, helping identify the source of the telemetry data in monitoring tools like Grafana.
 
@@ -395,7 +395,7 @@ When you see the following message, your Liberty instances are ready in dev mode
 
 Dev mode holds your command-line session to listen for file changes. Open another command-line session to continue, or open the project in your editor.
 
-Telemetry such as Liberty startup logs and JVM metrics is generated when the servers start. To see request-scoped telemetry, interact with the services.
+When the servers start, telemetry such as Liberty startup logs and JVM metrics is generated. To see request-scoped telemetry, interact with the services.
 
 Visit the http://localhost:9081/inventory/systems/localhost URL to fetch and store the `localhost` system information in `inventory`, which triggers the `inventory` service to call the `system` service at `\http://localhost:9080/system/systemLoad`.
 
@@ -420,7 +420,7 @@ View the trace that was automatically created from your request:
 +
 image::inventory_systems_localhost_trace.png[`GET /inventory/systems/{hostname}` trace,align="center"]
 
-6. In the **Service & Operation** table, click each span to view detailed metadata. The `Kind` attribute identifies the span type. The first span is from the `inventory` service server handled by its Jakarta RESTful Web Services endpoint. The second span is from the MicroProfile REST Client in the `inventory` service with kind client calling the `system` service. The third span is from the `system` service server handled by its Jakarta RESTful Web Services endpoint.
+6. In the **Service & Operation** table, click each span to view detailed metadata. The `Kind` property identifies the span type. The first span is from the `inventory` service server, handled by its Jakarta RESTful Web Services endpoint. The second span is from the MicroProfile REST Client in the `inventory` service, with the `Kind` property set to `client`, calling the `system` service. The third span is from the `system` service server, handled by its Jakarta RESTful Web Services endpoint.
 +
 Each span includes details such as when the request was received, when the response was sent, the HTTP method, status code, and endpoint path, allowing you to trace the full request flow across services.
 +
@@ -482,7 +482,7 @@ image::red_metrics.png[RED Metrics,align="center"]
 
 **Viewing application metrics**
 
-View application-level metrics.
+View application-level metrics:
 
 1. Navigate to **Drilldown -> Metrics** from the menu.
 
