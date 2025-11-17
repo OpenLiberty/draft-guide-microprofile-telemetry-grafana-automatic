@@ -106,13 +106,13 @@ The `finish` directory in the root of this guide contains the finished applicati
 
 To try out the application, go to the `finish` directory and run the following Maven goal to build the `system` service and deploy it to Open Liberty:
 
+ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
 --
 [role='command']
 ```
-cd /home/project/guide-microprofile-telemetry-grafana-automatic/finish
 mvnw.cmd -pl system liberty:run
 ```
 --
@@ -132,16 +132,24 @@ mvnw.cmd -pl system liberty:run
 ./mvnw -pl system liberty:run
 ```
 --
+endif::[]
+// cloud hosted instruction
+ifdef::cloud-hosted[]
+```bash
+cd /home/project/guide-microprofile-telemetry-grafana-automatic/finish
+./mvnw -pl system liberty:run
+```
+endif::[]
 
 Next, open another command-line session in the `finish` directory and run the following command to start the `inventory` service:
 
+ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
 --
 [role='command']
 ```
-cd /home/project/guide-microprofile-telemetry-grafana-automatic/finish
 mvnw.cmd -pl inventory liberty:run
 ```
 --
@@ -161,6 +169,14 @@ mvnw.cmd -pl inventory liberty:run
 ./mvnw -pl inventory liberty:run
 ```
 --
+endif::[]
+// cloud hosted instruction
+ifdef::cloud-hosted[]
+```bash
+cd /home/project/guide-microprofile-telemetry-grafana-automatic/finish
+./mvnw -pl inventory liberty:run
+```
+endif::[]
 
 After you see the following message in both command-line sessions, both of your services are ready:
 
