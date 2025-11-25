@@ -17,7 +17,7 @@
 :page-tags: ['microprofile']
 :page-permalink: /guides/{projectid}
 :common-includes: https://raw.githubusercontent.com/OpenLiberty/guides-common/prod
-:page-related-guides: [ 'microprofile-telemetry-grafana-custom', 'microprofile-telemetry-jaeger', 'microprofile-metrics', 'rest-intro', 'microprofile-rest-client' ]
+:page-related-guides: [ 'microprofile-telemetry-jaeger', 'microprofile-metrics', 'rest-intro', 'microprofile-rest-client' ]
 :imagesdir: /img/guide/{projectid}
 :page-seo-title: Collecting automatic traces, metrics, and logs in Java microservices using MicroProfile Telemetry and the Grafana stack
 :page-seo-description: A getting started tutorial on how to enable the collection of traces, metrics, and logs from Java microservices by using MicroProfile Telemetry in Open Liberty and visualizing them with the Grafana stack built on the grafana/otel-lgtm Docker image.
@@ -89,7 +89,11 @@ The OpenTelemetry collector and the Grafana LGTM stack are up and running.
 ----
 
 When the container is running, you can access the Grafana dashboard at the http://localhost:3000 URL.
+ifdef::cloud-hosted[]
+You can access the dashboard by clicking the following button:
 
+::startApplication{port="3000" display="external" name="Grafana dashboard" route="/"}
+endif::[]
 // =================================================================================================
 // Getting started
 // =================================================================================================
@@ -102,6 +106,7 @@ The `finish` directory in the root of this guide contains the finished applicati
 
 To try out the application, go to the `finish` directory and run the following Maven goal to build the `system` service and deploy it to Open Liberty:
 
+ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
@@ -127,9 +132,18 @@ mvnw.cmd -pl system liberty:run
 ./mvnw -pl system liberty:run
 ```
 --
+endif::[]
+// cloud hosted instruction
+ifdef::cloud-hosted[]
+```bash
+cd /home/project/guide-microprofile-telemetry-grafana-automatic/finish
+./mvnw -pl system liberty:run
+```
+endif::[]
 
 Next, open another command-line session in the `finish` directory and run the following command to start the `inventory` service:
 
+ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
@@ -155,6 +169,14 @@ mvnw.cmd -pl inventory liberty:run
 ./mvnw -pl inventory liberty:run
 ```
 --
+endif::[]
+// cloud hosted instruction
+ifdef::cloud-hosted[]
+```bash
+cd /home/project/guide-microprofile-telemetry-grafana-automatic/finish
+./mvnw -pl inventory liberty:run
+```
+endif::[]
 
 After you see the following message in both command-line sessions, both of your services are ready:
 
@@ -162,12 +184,29 @@ After you see the following message in both command-line sessions, both of your 
 ----
 The defaultServer server is ready to run a smarter planet.
 ----
-
-When both services are running, visit the http://localhost:9081/inventory/systems/localhost URL. This action triggers the `inventory` service to retrieve and store system load information for `localhost` by making a request to the `system` service at `\http://localhost:9080/system/systemLoad`.
+ifndef::cloud-hosted[]
+When both services are running, visit the http://localhost:9081/inventory/systems/localhost URL. This action triggers the `inventory` service to retrieve and store system load information for `localhost` by making a request to the `system` service at `http://localhost:9080/system/systemLoad`.
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Run the following command:
+```bash
+curl -s http://localhost:9081/inventory/systems/localhost 
+```
+This action triggers the `inventory` service to retrieve and store system load information for `localhost` by making a request to the `system` service at `http://localhost:9080/system/systemLoad`.
+endif::[]
 
 In addition, the `inventory` service makes periodic background requests to the `system` service every 15 seconds to refresh system load information for all stored systems.
 
+ifndef::cloud-hosted[]
 You can view the telemetry data collected from the running services in the Grafana dashboard at the http://localhost:3000 URL.
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Click the following button to access the dashboard:
+
+::startApplication{port="3000" display="external" name="Grafana dashboard" route="/"}
+endif::[]
 
 **Viewing trace with Tempo**
 
@@ -214,6 +253,7 @@ image::metrics_overview.png[Metrics overview,align="center"]
 
 After you're finished reviewing the application, stop the Open Liberty instances by pressing `CTRL+C` in the command-line sessions where you ran the `system` and `inventory` services. Alternatively, you can run the following goals from the `finish` directory in another command-line session:
 
+ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
@@ -242,6 +282,15 @@ mvnw.cmd -pl inventory liberty:stop
 ./mvnw -pl inventory liberty:stop
 ```
 --
+endif::[]
+// cloud hosted instruction
+ifdef::cloud-hosted[]
+```bash
+cd /home/project/guide-microprofile-telemetry-grafana-automatic/finish
+./mvnw -pl system liberty:stop
+./mvnw -pl inventory liberty:stop
+```
+endif::[]
 
 // =================================================================================================
 // Enabling automatic telemetry collection
@@ -331,6 +380,7 @@ Start the services to begin collecting telemetry data.
 
 When you run Open Liberty in https://openliberty.io/docs/latest/development-mode.html[dev mode^], dev mode listens for file changes and automatically recompiles and deploys your updates whenever you save a new change. Run the following command to start the `system` service in dev mode:
 
+ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
@@ -356,9 +406,18 @@ mvnw.cmd -pl system liberty:dev
 ./mvnw -pl system liberty:dev
 ```
 --
+endif::[]
+// cloud hosted instruction
+ifdef::cloud-hosted[]
+```bash
+cd /home/project/guide-microprofile-telemetry-grafana-automatic/start
+./mvnw -pl system liberty:dev
+```
+endif::[]
 
 Open another command-line session and run the following command to start the `inventory` service in dev mode:
 
+ifndef::cloud-hosted[]
 include::{common-includes}/os-tabs.adoc[]
 
 [.tab_content.windows_section]
@@ -384,6 +443,14 @@ mvnw.cmd -pl inventory liberty:dev
 ./mvnw -pl inventory liberty:dev
 ```
 --
+endif::[]
+// cloud hosted instruction
+ifdef::cloud-hosted[]
+```bash
+cd /home/project/guide-microprofile-telemetry-grafana-automatic/start
+./mvnw -pl inventory liberty:dev
+```
+endif::[]
 
 When you see the following message, your Liberty instances are ready in dev mode:
 
@@ -397,11 +464,28 @@ Dev mode holds your command-line session to listen for file changes. Open anothe
 
 When the servers start, telemetry such as Liberty startup logs and JVM metrics is generated. To see request-scoped telemetry, interact with the services.
 
-Visit the http://localhost:9081/inventory/systems/localhost URL to fetch and store the `localhost` system information in `inventory`, which triggers the `inventory` service to call the `system` service at `\http://localhost:9080/system/systemLoad`.
+ifndef::cloud-hosted[]
+Visit the http://localhost:9081/inventory/systems/localhost URL to fetch and store the `localhost` system information in `inventory`, which triggers the `inventory` service to call the `system` service at `http://localhost:9080/system/systemLoad`.
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Run the following command to fetch and store the `localhost` system information in `inventory`, which triggers the `inventory` service to call the `system` service at `http://localhost:9080/system/systemLoad`:
+```bash
+curl -s http://localhost:9081/inventory/systems/localhost 
+```
+endif::[]
 
 Because the `inventory` service makes periodic background requests every 15 seconds to refresh system load information for all stored systems, telemetry data is continuously generated for you to monitor.
 
-Open the Grafana dashboard at the http://localhost:3000 URL to view the telemetry data collected from the running services.
+ifndef::cloud-hosted[]
+You can view the telemetry data collected from the running services in the Grafana dashboard at the http://localhost:3000 URL.
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Click the following button to access the dashboard:
+
+::startApplication{port="3000" display="external" name="Grafana dashboard" route="/"}
+endif::[]
 
 **Viewing request traces**
 
@@ -509,7 +593,26 @@ include::start/inventory/src/main/java/io/openliberty/guides/inventory/Inventory
 
 The current [hotspot file=0]`InventoryManager` class logs messages by writing to [hotspot=out1 file=0]`System.out` and [hotspot=out2 hotspot=out3 file=0]`System.err`.
 
-To observe a basic standard output log, visit the http://localhost:9081/inventory/systems/localhost URL to trigger a successful request. Then, open the Grafana dashboard at the http://localhost:3000 URL.
+ifndef::cloud-hosted[]
+To observe a basic standard output log, visit the http://localhost:9081/inventory/systems/localhost URL to trigger a successful request. 
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+To observe a basic standard output log, run the following command to trigger a successful request:
+```bash
+curl -s http://localhost:9081/inventory/systems/localhost
+```
+endif::[]
+
+ifndef::cloud-hosted[]
+Then, open the Grafana dashboard at the http://localhost:3000 URL.
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Then, click the following button to open the Grafana dashboard.
+
+::startApplication{port="3000" display="external" name="Grafana dashboard" route="/"}
+endif::[]
 
 In the **Explore** view, select the **Loki** data source. Set a filter for `service_name = inventory` and click the blue **Run query** button. The results appear in the **Logs** view by default. If it is not already selected, switch to **Logs** at the upper right of the **Logs** section to enable log expansion.
 
@@ -520,7 +623,17 @@ Locate the log entry `Retrieved system load from localhost`. When you expand it,
 image::log_system_out.png[Example log entry from `System.out` standard output stream,align="center"]
 {empty} +
 
-Next, observe a standard error log by visiting the http://localhost:9081/inventory/systems/unknown URL. This simulates a request to a nonexistent host and triggers a `RuntimeException`.
+ifndef::cloud-hosted[]
+Next, observe a standard error log by visiting the http://localhost:9081/inventory/systems/unknown URL.
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Next, observe a standard error log by running the following command:
+```bash
+curl -s http://localhost:9081/inventory/systems/unknown
+```
+endif::[]
+This simulates a request to a nonexistent host and triggers a `RuntimeException`.
 
 Rerun the same query in Grafana. In the **Logs** section, locate and expand the following log entry:
 
@@ -554,12 +667,34 @@ The updated [hotspot file=1]`InventoryManager` class now uses the [hotspot=getLo
 
 Because the services are running in dev mode, your changes are automatically picked up.
 
-Return to the http://localhost:9081/inventory/systems/localhost URL to trigger a successful request. Rerun the Loki query in Grafana and locate the log entry `Retrieved system load from localhost`. Expand the entry and verify that the `detected_level` is set to `INFO` and the `io_openliberty_module` field contains the logger name, `io.openliberty.guides.inventory.client.InventoryManager`, which helps trace the origin of the log.
+ifndef::cloud-hosted[]
+Return to the http://localhost:9081/inventory/systems/localhost URL to trigger a successful request. 
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Run the following command to trigger a successful request:
+```bash
+curl -s http://localhost:9081/inventory/systems/localhost
+```
+endif::[]
+
+Rerun the Loki query in Grafana and locate the log entry `Retrieved system load from localhost`. Expand the entry and verify that the `detected_level` is set to `INFO` and the `io_openliberty_module` field contains the logger name, `io.openliberty.guides.inventory.client.InventoryManager`, which helps trace the origin of the log.
 
 image::log_logger_info.png[Example log entry from java.util.logging API at INFO level,align="center"]
 {empty} +
 
-Next, access the http://localhost:9081/inventory/systems/unknown URL to trigger an exception. Rerun the Loki query and locate the log entry `Runtime exception while invoking system service`. When expanded, the entry shows that the `detected_level` field is set to `WARNING`. The `exception_stacktrace` field contains a structured stack trace, and the `exception_type` field identifies the exception as `jakarta.ws.rs.ProcessingException`.
+ifndef::cloud-hosted[]
+Next, access the http://localhost:9081/inventory/systems/unknown URL to trigger an exception. 
+endif::[]
+// cloud-hosted guide content
+ifdef::cloud-hosted[]
+Next, run the following command to trigger an exception:
+```bash
+curl -s http://localhost:9081/inventory/systems/unknown
+```
+endif::[]
+
+Rerun the Loki query and locate the log entry `Runtime exception while invoking system service`. When expanded, the entry shows that the `detected_level` field is set to `WARNING`. The `exception_stacktrace` field contains a structured stack trace, and the `exception_type` field identifies the exception as `jakarta.ws.rs.ProcessingException`.
 
 image::log_logger_warning.png[Example log entry from java.util.logging API at WARNING level,align="center"]
 {empty} +
